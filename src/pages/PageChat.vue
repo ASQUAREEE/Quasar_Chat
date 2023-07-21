@@ -8,12 +8,13 @@
     </q-banner>
     <div class="q-pa-md column col justify-end">
       <q-chat-message
+        class="messages-container"
         v-for="(message, key) in messages"
         :key="key"
         :name="message.from == 'me' ? userDetails.name : otherUserDetails.name"
         :text="[message.text]"
         :sent="message.from == 'me' ? true : false"
-        :bg-color="message.from == 'me' ? 'white' : 'light-green'"
+        :bg-color="message.from == 'me' ? 'light-green' : 'white'"
       />
     </div>
     <q-footer elevated>
@@ -131,16 +132,22 @@ export default {
   bottom: 0;
   z-index: 0;
   opacity: 0.1; */
+  z-index: 0;
+  background-color: #e5e5f7;
 
-  --_g: #036564 35%, #0000 36%;
-  background: radial-gradient(at 100% 100%, var(--_g)),
-    radial-gradient(at 0 0, var(--_g)) #e8ddcb;
-  background-size: 4em 4em;
-  /* 35% = 100%/(2*sqrt(2)) */
+  background-image: radial-gradient(
+    #be85a7 0.8500000000000001px,
+    #e5e5f7 0.8500000000000001px
+  );
+  background-size: 17px 17px;
+}
+
+.messages-container {
+  z-index: 2;
 }
 
 .q-banner {
-  top: 20px;
+  top: 40px;
   z-index: 2;
   opacity: 0.8;
 }
