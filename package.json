@@ -6,13 +6,12 @@
   "author": "Ashher Ali <ashher868@gmail.com>",
   "private": true,
   "scripts": {
-     
-      "deploy": "vercel"
     "lint": "eslint --ext .js,.vue ./",
     "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
-    "build": "quasar build"
+    "build": "quasar build",
+    "deploy": "vercel"
   },
   "dependencies": {
     "@quasar/extras": "^1.16.4",
@@ -27,7 +26,7 @@
     "@quasar/app-vite": "^1.3.0",
     "autoprefixer": "^10.4.2",
     "electron": "^25.3.1",
-    "eslint": "^8.10.0",
+    "eslint": "^8.45.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-vue": "^9.0.0",
     "postcss": "^8.4.14",
