@@ -8,6 +8,7 @@
       outlined
       v-model="formData.name"
       label="Name"
+      required
     />
 
     <q-input
@@ -16,6 +17,7 @@
       v-model="formData.email"
       type="email"
       label="Email"
+      required
     />
 
     <q-input
@@ -24,6 +26,7 @@
       v-model="formData.password"
       type="password"
       label="Password"
+      required
     />
 
     <div class="row">
