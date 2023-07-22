@@ -38,7 +38,7 @@ const mutations = {
     state.messages[payload.messageId] = payload.messageDetails;
   },
 
-  clearMessages(state, payload) {
+  clearMessages(state) {
     state.messages = {};
   },
 };
