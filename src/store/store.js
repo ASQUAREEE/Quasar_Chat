@@ -267,10 +267,16 @@ const getters = {
         let task = state.users[key];
 
         let taskNameLowerCase = task.name.toLowerCase();
+        let taskEmailLowerCase = task.email.toLowerCase();
+
+        console.log(taskNameLowerCase);
 
         let searchLowerCase = state.search.toLowerCase();
 
-        if (taskNameLowerCase.includes(searchLowerCase)) {
+        if (
+          taskNameLowerCase.includes(searchLowerCase) ||
+          taskEmailLowerCase.includes(searchLowerCase)
+        ) {
           taskFiltered[key] = task;
         }
       });

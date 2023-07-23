@@ -22,6 +22,7 @@
 
         <q-item-section>
           <q-item-label>{{ user.name }}</q-item-label>
+          <!-- <q-item-label>{{ user.email }}</q-item-label> -->
         </q-item-section>
 
         <q-item-section side>

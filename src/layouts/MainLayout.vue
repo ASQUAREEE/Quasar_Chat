@@ -13,6 +13,9 @@
 
         <q-toolbar-title class="absolute-center">
           {{ title }}
+          <div class="email">
+            {{ email }}
+          </div>
         </q-toolbar-title>
 
         <q-btn
@@ -89,8 +92,16 @@ export default {
 
       return "Default Title"; // Add a default return value
     },
-  },
 
+    email() {
+      let currentPath = this.$route.fullPath;
+      if (currentPath.includes("/chat")) {
+        return this.otherUserDetails.email;
+      }
+
+      return "";
+    },
+  },
   methods: {
     ...mapActions("store1", ["logoutUser"]),
   },
@@ -104,5 +115,10 @@ export default {
 
 .post {
   margin-left: 30px;
+}
+
+.email {
+  color: grey;
+  font-size: 14px;
 }
 </style>
