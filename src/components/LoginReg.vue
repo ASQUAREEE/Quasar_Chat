@@ -7,7 +7,7 @@
       class="q-mb-md"
       outlined
       v-model="formData.name"
-      label="Name"
+      label="Username"
       required
     />
 

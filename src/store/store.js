@@ -61,7 +61,12 @@ const actions = {
         // console.log("response:", response);
 
         let userId = firebaseAuth.currentUser.uid;
-        if (userId != undefined) {
+        if (
+          userId != undefined &&
+          userId != null &&
+          payload.name != undefined &&
+          payload.name != null
+        ) {
           firebaseDb.ref("users/" + userId).set({
             name: payload.name,
             email: payload.email,
@@ -141,7 +146,9 @@ const actions = {
   firebaseUpdateUser({}, payload) {
     console.log("Payload: ", payload);
 
-    firebaseDb.ref("users/" + payload.userId).update(payload.updates);
+    if (payload.userId != undefined) {
+      firebaseDb.ref("users/" + payload.userId).update(payload.updates);
+    }
   },
 
   firebaseGetUser({ commit }) {
@@ -155,11 +162,14 @@ const actions = {
 
       // console.log("User details: ", userDetails);
 
-      if (userId != undefined && userDetails != undefined) {
+      if (userId && userDetails) {
         commit("addUser", {
           userId,
           userDetails,
         });
+      } else {
+        // Delete the user if either userId or userDetails is undefined
+        firebaseDb.ref("users/" + userId).remove();
       }
     });
 
@@ -173,10 +183,15 @@ const actions = {
 
       // console.log("User details: ", userDetails);
 
-      commit("updateUser", {
-        userId,
-        userDetails,
-      });
+      if (userId && userDetails) {
+        commit("updateUser", {
+          userId,
+          userDetails,
+        });
+      } else {
+        // Delete the user if either userId or userDetails is undefined
+        firebaseDb.ref("users/" + userId).remove();
+      }
     });
   },
 
