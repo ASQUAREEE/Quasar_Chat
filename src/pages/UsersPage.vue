@@ -22,7 +22,7 @@
 
         <q-item-section>
           <q-item-label>{{ user.name }}</q-item-label>
-          <!-- <q-item-label>{{ user.email }}</q-item-label> -->
+          <q-item-label class="email">{{ user.email }}</q-item-label>
         </q-item-section>
 
         <q-item-section side>
@@ -51,4 +51,9 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.email {
+  color: grey;
+  font-size: 12px;
+}
+</style>

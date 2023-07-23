@@ -94,7 +94,7 @@ const actions = {
 
   logoutUser() {
     firebaseAuth.signOut();
-    console.log("logout");
+    // console.log("logout");
   },
 
   handleAuthStateChange({ commit, dispatch, state }) {
@@ -144,7 +144,7 @@ const actions = {
   },
 
   firebaseUpdateUser({}, payload) {
-    console.log("Payload: ", payload);
+    // console.log("Payload: ", payload);
 
     if (payload.userId != undefined) {
       firebaseDb.ref("users/" + payload.userId).update(payload.updates);
@@ -268,8 +268,6 @@ const getters = {
 
         let taskNameLowerCase = task.name.toLowerCase();
         let taskEmailLowerCase = task.email.toLowerCase();
-
-        console.log(taskNameLowerCase);
 
         let searchLowerCase = state.search.toLowerCase();
 
