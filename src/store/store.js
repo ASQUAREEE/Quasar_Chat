@@ -11,6 +11,8 @@ const state = {
   users: {},
 
   messages: {},
+
+  search: "",
 };
 
 const mutations = {
@@ -21,7 +23,9 @@ const mutations = {
   },
 
   addUser(state, payload) {
-    state.users[payload.userId] = payload.userDetails;
+    if (payload.userId != undefined) {
+      state.users[payload.userId] = payload.userDetails;
+    }
 
     // Make the users object reactive
     // state.users = reactive({
@@ -41,6 +45,10 @@ const mutations = {
   clearMessages(state) {
     state.messages = {};
   },
+
+  setSearch(state, payload) {
+    state.search = payload;
+  },
 };
 
 const actions = {
@@ -53,12 +61,13 @@ const actions = {
         // console.log("response:", response);
 
         let userId = firebaseAuth.currentUser.uid;
-
-        firebaseDb.ref("users/" + userId).set({
-          name: payload.name,
-          email: payload.email,
-          online: true,
-        });
+        if (userId != undefined) {
+          firebaseDb.ref("users/" + userId).set({
+            name: payload.name,
+            email: payload.email,
+            online: true,
+          });
+        }
       })
 
       .catch((error) => {
@@ -146,10 +155,12 @@ const actions = {
 
       // console.log("User details: ", userDetails);
 
-      commit("addUser", {
-        userId,
-        userDetails,
-      });
+      if (userId != undefined && userDetails != undefined) {
+        commit("addUser", {
+          userId,
+          userDetails,
+        });
+      }
     });
 
     firebaseDb.ref("users").on("child_changed", (snapshot) => {
@@ -208,18 +219,60 @@ const actions = {
       .ref("chats/" + payload.otherUserId + "/" + state.userDetails.userId)
       .push(payload.message);
   },
+
+  setSearch({ commit }, payload) {
+    commit("setSearch", payload);
+  },
 };
 
 const getters = {
   //make data available in vue comp
 
-  users: (state) => {
+  // users: (state) => {
+  //   // console.log("hhaha");
+
+  //   let usersFiltered = {};
+  //   Object.keys(state.users).forEach((key) => {
+  //     if (key !== state.userDetails.userId) {
+  //       usersFiltered[key] = state.users[key];
+  //     }
+  //   });
+
+  //   // console.log(state.users);
+
+  //   return usersFiltered;
+  // },
+
+  taskFiltered: (state) => {
+    let taskFiltered = {};
+
+    if (state.search) {
+      //populate the empty object
+      Object.keys(state.users).forEach((key) => {
+        let task = state.users[key];
+
+        let taskNameLowerCase = task.name.toLowerCase();
+
+        let searchLowerCase = state.search.toLowerCase();
+
+        if (taskNameLowerCase.includes(searchLowerCase)) {
+          taskFiltered[key] = task;
+        }
+      });
+      return taskFiltered;
+    }
+
+    return state.users;
+  },
+
+  users: (state, getters) => {
+    let taskFiltered = getters.taskFiltered;
     // console.log("hhaha");
 
     let usersFiltered = {};
-    Object.keys(state.users).forEach((key) => {
+    Object.keys(taskFiltered).forEach((key) => {
       if (key !== state.userDetails.userId) {
-        usersFiltered[key] = state.users[key];
+        usersFiltered[key] = taskFiltered[key];
       }
     });
 

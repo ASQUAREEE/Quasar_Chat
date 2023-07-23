@@ -37,6 +37,17 @@
           Logout<br />
           {{ userDetails.name }}
         </q-btn>
+
+        <q-btn
+          v-if="!$route.fullPath.includes('/chat')"
+          to="/home"
+          class="absolute-left q-pr-sm"
+          no-caps
+          dense
+          icon="home"
+          flat
+        />
+        <!-- <q-btn to="/posts" class="q-pr-sm post" no-caps dense flat>Posts</q-btn> -->
       </q-toolbar>
     </q-header>
 
@@ -89,5 +100,9 @@ export default {
 <style scoped>
 .q-toolbar .q-btn {
   line-height: 1.2;
+}
+
+.post {
+  margin-left: 30px;
 }
 </style>

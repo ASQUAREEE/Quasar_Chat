@@ -58,10 +58,14 @@ export default {
     submitForm() {
       if (this.tab == "login") {
         // console.log("Login the user");
-        this.loginUser(this.formData);
+        if (this.formData.name != null && this.formData.name != undefined) {
+          this.loginUser(this.formData);
+        }
       } else {
         // console.log("Register the user");
-        this.registerUser(this.formData);
+        if (this.formData.name != null && this.formData.name != undefined) {
+          this.registerUser(this.formData);
+        }
       }
     },
   },

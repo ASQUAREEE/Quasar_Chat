@@ -1,6 +1,12 @@
 <template>
   <q-page class="flex q-pa-md">
     <q-list class="full-width" separator>
+      <div class="row q-mb-lg">
+        <search />
+      </div>
+
+      <p v-if="search && !Object.keys(users).length">No search results</p>
+
       <q-item
         v-for="(user, key) in users"
         :key="key"
@@ -29,11 +35,17 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState, mapGetters } from "vuex";
+import search from "./search.vue";
 
 export default {
   computed: {
     ...mapGetters("store1", ["users"]),
+    ...mapState("store1", ["search"]),
+  },
+
+  components: {
+    search,
   },
 };
 </script>
