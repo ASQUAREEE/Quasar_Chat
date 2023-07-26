@@ -13,6 +13,11 @@ const state = {
   messages: {},
 
   search: "",
+
+  idConnections: [],
+  connectionsQueue: [],
+
+  // otherUserId: null,
 };
 
 const mutations = {
@@ -49,6 +54,30 @@ const mutations = {
   setSearch(state, payload) {
     state.search = payload;
   },
+
+  algoConnections(state, payload) {
+    console.log("algoConnections");
+    state.idConnections = payload; // Append the array to the idConnections
+    console.log("idConnections:", state.idConnections);
+  },
+
+  enqueueConnection(state, payload) {
+    state.connectionsQueue = payload;
+    console.log("enqueeeeee", payload);
+    console.log("enqueueConnection", state.connectionsQueue);
+  },
+
+  dequeueConnection(state) {
+    state.connectionsQueue.shift();
+    console.log("dequee connection");
+  },
+  // setOtherUserId(state, otherUserId) {
+  //   state.otherUserId = otherUserId;
+  // },
+
+  // algoConnection(state, payload) {
+  //   console.log("hahah");
+  // },
 };
 
 const actions = {
@@ -77,6 +106,153 @@ const actions = {
 
       .catch((error) => {
         console.log("error:", error.message);
+      });
+  },
+
+  makeConnections({ commit }, payload) {
+    console.log("makeeee", payload);
+    let connectionsArray;
+    // let connectionsQueue;
+    let connectionStrategy = [];
+    // Fetch the current array of connections from the database.
+    firebaseDb
+      .ref("makeConnection/")
+      .once("value")
+      .then((snapshot) => {
+        // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
+        connectionsArray = snapshot.val() || [];
+
+        // if (connectionsArray.length > 3) {
+        //   const newConnectionsArray = connectionsArray.slice(2);
+        //   firebaseDb.ref("makeConnection/").set(newConnectionsArray);
+        // }
+
+        let isPayloadAlreadyExists = false;
+        for (let i = 0; i < connectionsArray.length; i++) {
+          if (connectionsArray[i] === payload) {
+            isPayloadAlreadyExists = true;
+            break;
+          }
+        }
+
+        console.log("checking", connectionsArray);
+        // Append the payload data to the array.
+
+        if (!isPayloadAlreadyExists) {
+          // Append the payload data to the array.
+          connectionsArray.push(payload);
+
+          console.log("added", connectionsArray);
+          // commit("enqueueConnection", payload);
+
+          connectionStrategy[0] = connectionsArray[0];
+          if (connectionsArray.length > 1) {
+            connectionStrategy.push(connectionsArray[1]);
+          }
+
+          if (connectionStrategy.length == 2) {
+            firebaseDb.ref("connectionQueue/").set(connectionStrategy);
+            commit("enqueueConnection", connectionStrategy);
+          }
+          // dispatch("algoConnection", {
+          //   connectionsArray: connectionsArray,
+          // });
+          // Update the 'makeConnection' node with the new array.
+          return firebaseDb.ref("makeConnection/").set(connectionsArray);
+        } else {
+          console.log(
+            "Payload already exists in the array, skipping addition."
+          );
+          return null;
+        }
+      })
+      .then(() => {
+        // this.$store.dispatch("algoConnection");
+        console.log(connectionsArray);
+
+        commit("algoConnections", connectionsArray);
+
+        console.log("Data appended successfully!");
+      })
+      .catch((error) => {
+        console.error("Error appending data:", error);
+      });
+  },
+
+  letsConnectQueue({ commit, dispatch, state }, payload) {
+    let connectionsArray;
+
+    let currentUser = state.userDetails.userId;
+    let connectionChecker = [];
+    // let connectionCheckei = false;
+
+    console.log(currentUser);
+    // console.log(state.connectionsQueue);
+    firebaseDb
+      .ref("connectionQueue/")
+      .once("value")
+      .then((snapshot) => {
+        // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
+        connectionsArray = snapshot.val() || [];
+        console.log(connectionsArray);
+
+        const firstUserInQueue = connectionsArray[0];
+        const secondUserInQueue = connectionsArray[1];
+
+        if (currentUser === firstUserInQueue) {
+          const newConnectionsArray = connectionsArray.slice(2);
+          firebaseDb.ref("makeConnection/").set(newConnectionsArray);
+
+          firebaseDb
+            .ref("connectionChecker/")
+            .once("value")
+            .then((snapshot1) => {
+              // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
+              connectionChecker = snapshot1.val() || [];
+
+              connectionChecker.push("1");
+
+              firebaseDb.ref("connectionChecker/").set(connectionChecker);
+            });
+
+          // If the current user matches the first user in the queue, navigate to the chat route with the other user
+          this.$router.push(`/chat/${secondUserInQueue}`);
+        }
+        if (currentUser === secondUserInQueue) {
+          // If the current user matches the first user in the queue, navigate to the chat route with the other user
+          this.$router.push(`/chat/${firstUserInQueue}`);
+
+          firebaseDb
+            .ref("connectionChecker/")
+            .once("value")
+            .then((snapshot1) => {
+              // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
+              connectionChecker = snapshot1.val() || [];
+
+              connectionChecker.push("2");
+
+              firebaseDb.ref("connectionChecker/").set(connectionChecker);
+            });
+        }
+
+        connectionChecker = false;
+      });
+
+    firebaseDb
+      .ref("connectionChecker/")
+      .once("value")
+      .then((snapshot1) => {
+        // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
+        connectionChecker = snapshot1.val() || [];
+
+        console.log(connectionChecker.length);
+
+        if (connectionChecker.length > 0) {
+          // connectionChecker == [];
+
+          firebaseDb.ref("connectionChecker/").remove();
+          firebaseDb.ref("connectionQueue/").remove();
+        }
       });
   },
 
@@ -298,6 +474,12 @@ const getters = {
     // console.log(state.users);
 
     return usersFiltered;
+  },
+
+  currentUser: (state) => {
+    let currentUser = state.userDetails.userId;
+    // console.log(currentUser);
+    return currentUser;
   },
 };
 
