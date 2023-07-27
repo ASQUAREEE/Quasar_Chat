@@ -17,6 +17,8 @@ const state = {
   idConnections: [],
   connectionsQueue: [],
 
+  friendsList: [],
+
   // otherUserId: null,
 };
 
@@ -70,6 +72,12 @@ const mutations = {
   dequeueConnection(state) {
     state.connectionsQueue.shift();
     console.log("dequee connection");
+  },
+
+  friendList(state, payload) {
+    state.friendsList = payload;
+    console.log("friend list");
+    console.log(payload);
   },
   // setOtherUserId(state, otherUserId) {
   //   state.otherUserId = otherUserId;
@@ -414,6 +422,46 @@ const actions = {
   setSearch({ commit }, payload) {
     commit("setSearch", payload);
   },
+
+  makeFriends({}, payload) {
+    console.log(payload);
+
+    let friends = {};
+
+    firebaseDb
+      .ref("Friends/" + payload.currentId)
+      .once("value")
+      .then((snapshot1) => {
+        // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
+        friends = snapshot1.val() || [];
+
+        console.log(friends);
+        friends.push(payload.friends);
+
+        console.log(friends);
+
+        firebaseDb.ref("Friends/" + payload.currentId).set(friends);
+      });
+  },
+
+  FriendsList({ commit }, payload) {
+    let friends = [];
+    console.log("payload", payload);
+    firebaseDb
+      .ref("Friends/" + payload)
+      .once("value")
+      .then((snapshot1) => {
+        // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
+
+        friends = snapshot1.val() || [];
+
+        console.log(friends);
+
+        commit("friendList", {
+          friends,
+        });
+      });
+  },
 };
 
 const getters = {
@@ -480,6 +528,12 @@ const getters = {
     let currentUser = state.userDetails.userId;
     // console.log(currentUser);
     return currentUser;
+  },
+
+  usersFriends: (state) => {
+    let usersFriends = state.friendsList.friends;
+    console.log(usersFriends);
+    return usersFriends;
   },
 };
 

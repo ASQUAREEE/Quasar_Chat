@@ -29,7 +29,7 @@
           label="Login"
         />
         <q-btn
-          v-else
+          v-else-if="!$route.fullPath.includes('/chat')"
           @click="logoutUser"
           class="absolute-right q-pr-sm"
           no-caps
@@ -40,6 +40,17 @@
           Logout<br />
           {{ userDetails.name }}
         </q-btn>
+
+        <q-btn
+          v-if="$route.fullPath.includes('/chat')"
+          @click="addFriends"
+          class="absolute-right q-pr-sm"
+          no-caps
+          dense
+          icon="account_circle"
+          flat
+          label="Add friend"
+        />
 
         <q-btn
           v-if="!$route.fullPath.includes('/chat')"
@@ -64,7 +75,7 @@
 import { defineComponent, ref } from "vue";
 import EssentialLink from "components/EssentialLink.vue";
 
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions, mapGetters } from "vuex";
 
 import mixinOtherDetails from "src/mixins/mixin-other-user-details.js";
 
@@ -72,6 +83,20 @@ export default {
   mixins: [mixinOtherDetails],
 
   name: "MainLayout",
+
+  data() {
+    return {
+      friendDetails: {
+        currentId: "",
+
+        friends: {
+          friendId: "",
+          friendName: "",
+          email: "",
+        },
+      },
+    };
+  },
 
   components: {
     // EssentialLink
@@ -103,7 +128,19 @@ export default {
     },
   },
   methods: {
-    ...mapActions("store1", ["logoutUser"]),
+    ...mapGetters("store1", ["currentUser"]),
+    ...mapActions("store1", ["logoutUser", "makeFriends"]),
+
+    addFriends() {
+      this.friendDetails.currentId = this.currentUser();
+
+      this.friendDetails.friends.friendId = this.$route.params.otherUserId;
+      this.friendDetails.friends.friendName = this.otherUserDetails.name;
+      this.friendDetails.friends.email = this.otherUserDetails.email;
+
+      this.makeFriends(this.friendDetails);
+      console.log(this.friendDetails);
+    },
   },
 };
 </script>

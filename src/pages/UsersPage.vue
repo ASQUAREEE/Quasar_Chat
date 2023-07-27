@@ -6,31 +6,63 @@
       </div>
 
       <p v-if="search && !Object.keys(users).length">No search results</p>
+      <div v-if="search">
+        <q-item
+          v-for="(user, key) in users"
+          :key="key"
+          :to="'/chat/' + key"
+          clickable
+          v-ripple
+        >
+          <q-item-section avatar>
+            <q-avatar color="primary" text-color="white">
+              {{ user.name.charAt(0) }}
+            </q-avatar>
+          </q-item-section>
 
-      <q-item
-        v-for="(user, key) in users"
-        :key="key"
-        :to="'/chat/' + key"
-        clickable
-        v-ripple
-      >
-        <q-item-section avatar>
-          <q-avatar color="primary" text-color="white">
-            {{ user.name.charAt(0) }}
-          </q-avatar>
-        </q-item-section>
+          <q-item-section>
+            <q-item-label>{{ user.name }}</q-item-label>
+            <q-item-label class="email">{{ user.email }}</q-item-label>
+          </q-item-section>
 
-        <q-item-section>
-          <q-item-label>{{ user.name }}</q-item-label>
-          <q-item-label class="email">{{ user.email }}</q-item-label>
-        </q-item-section>
+          <q-item-section side>
+            <q-badge :color="user.online ? 'light-green-5' : 'grey-4'">
+              {{ user.online ? "Online" : "Offline" }}
+            </q-badge>
+          </q-item-section>
+        </q-item>
+      </div>
 
-        <q-item-section side>
-          <q-badge :color="user.online ? 'light-green-5' : 'grey-4'">
-            {{ user.online ? "Online" : "Offline" }}
-          </q-badge>
-        </q-item-section>
-      </q-item>
+      <div v-if="!search">
+        <q-item
+          v-for="(user, key) in usersFriends"
+          :key="key"
+          :to="'/chat/' + user.friendId"
+          clickable
+          v-ripple
+        >
+          <q-item-section avatar>
+            <q-avatar color="primary" text-color="white">
+              {{ user.friendName.charAt(0) }}
+            </q-avatar>
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>{{ user.friendName }}</q-item-label>
+            <q-item-label class="email">{{ user.email }}</q-item-label>
+          </q-item-section>
+
+          <q-item-section side>
+            <q-badge
+              :color="
+                isFriendOnline(user.friendId) ? 'light-green-5' : 'grey-4'
+              "
+            >
+              {{ isFriendOnline(user.friendId) ? "Online" : "Offline" }}
+            </q-badge>
+          </q-item-section>
+        </q-item>
+      </div>
 
       <q-item-section>
         <q-btn class="makeNew" @click="makeConnection">Make New Friends</q-btn>
@@ -57,8 +89,14 @@ export default {
   },
 
   computed: {
-    ...mapGetters("store1", ["users"]),
-    ...mapState("store1", ["search", "idConnections", "connectionsQueue"]),
+    ...mapGetters("store1", ["users", "usersFriends"]),
+    ...mapState("store1", [
+      "search",
+      "idConnections",
+      "connectionsQueue",
+      "userDetails",
+      "friendsList",
+    ]),
   },
 
   components: {
@@ -71,7 +109,16 @@ export default {
       "makeConnections",
       "letsConnect",
       "letsConnectQueue",
+      "FriendsList",
     ]),
+
+    isFriendOnline(friendId) {
+      // Check if the friendId is included in the list of users
+      return (
+        Object.keys(this.users).includes(friendId) &&
+        this.users[friendId].online
+      );
+    },
 
     makeConnection() {
       let currentUser = this.currentUser();
@@ -82,13 +129,27 @@ export default {
       this.tracker = true;
       // this.transferConnection();
     },
+
+    Listoffriends() {
+      console.log(this.friendsList.friends);
+    },
+
+    // friendConnection() {
+    //   let currentUser = this.currentUser();
+    //   console.log(currentUser);
+    //   this.FriendsList(currentUser);
+    // },
   },
 
+  // mounted() {
+  //   this.friendConnection();
+  // },
+
   created() {
+    // this.friendConnection();
     this.checkConnectionsInterval = setInterval(() => {
       if (this.tracker === true) {
         this.letsConnectQueue();
-        // this.makeConnections(this.currentUser());
       }
     }, 100); // Run the checkConnections method every 1 second (adjust the interval as needed)
   },
@@ -98,14 +159,22 @@ export default {
   },
 
   watch: {
-    // idConnections: {
-    //   handler(newConnections, oldConnections) {
-    //     if (newConnections.length > 0 && this.tracker === true) {
-    //       this.transferConnection();
-    //     }
-    //   },
-    //   immediate: true, // Trigger the handler immediately on component mount
-    // },
+    userDetails: {
+      handler(userDetail) {
+        console.log(userDetail);
+        console.log("kuch kuch ", userDetail.userId);
+        this.FriendsList(userDetail.userId);
+      },
+      immediate: true, // Trigger the handler immediately on component mount
+    },
+    friendsList: {
+      handler(friendsList) {
+        console.log(friendsList);
+        console.log("kuch kuch ", friendsList);
+        this.Listoffriends();
+      },
+      immediate: true, // Trigger the handler immediately on component mount
+    },
 
     // New watcher to handle navigating to a specific route
     connectionsQueue: {
