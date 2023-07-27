@@ -42,7 +42,7 @@
         </q-btn>
 
         <q-btn
-          v-if="$route.fullPath.includes('/chat')"
+          v-if="$route.fullPath.includes('/chat') && !friendTracker"
           @click="addFriends"
           class="absolute-right q-pr-sm"
           no-caps
@@ -50,6 +50,15 @@
           icon="account_circle"
           flat
           label="Add friend"
+        />
+        <q-btn
+          v-if="$route.fullPath.includes('/chat') && friendTracker"
+          class="absolute-right q-pr-sm"
+          no-caps
+          dense
+          icon="account_circle"
+          flat
+          label="your friend"
         />
 
         <q-btn
@@ -90,11 +99,19 @@ export default {
         currentId: "",
 
         friends: {
-          friendId: "",
-          friendName: "",
+          id: "",
+          name: "",
           email: "",
         },
+
+        currentUser: {
+          name: "",
+          email: "",
+          id: "",
+        },
       },
+
+      friendTracker: false,
     };
   },
 
@@ -103,7 +120,7 @@ export default {
   },
 
   computed: {
-    ...mapState("store1", ["userDetails"]),
+    ...mapState("store1", ["userDetails", "friendsList"]),
 
     title() {
       let currentPath = this.$route.fullPath;
@@ -134,12 +151,55 @@ export default {
     addFriends() {
       this.friendDetails.currentId = this.currentUser();
 
-      this.friendDetails.friends.friendId = this.$route.params.otherUserId;
-      this.friendDetails.friends.friendName = this.otherUserDetails.name;
+      this.friendDetails.friends.id = this.$route.params.otherUserId;
+      this.friendDetails.friends.name = this.otherUserDetails.name;
       this.friendDetails.friends.email = this.otherUserDetails.email;
+
+      this.friendDetails.currentUser.name = this.userDetails.name;
+      this.friendDetails.currentUser.email = this.userDetails.email;
+      this.friendDetails.currentUser.id = this.userDetails.userId;
+
+      // this.friendDetails.currentId.name = this.userDetails
+
+      console.log(this.userDetails);
 
       this.makeFriends(this.friendDetails);
       console.log(this.friendDetails);
+    },
+  },
+
+  created() {
+    // Check if the friend list includes the current otherUserId
+    const otherUserId = this.$route.params.otherUserId;
+    console.log(this.friendsList);
+
+    for (let i = 0; i < this.friendsList.length; i++) {
+      if (this.friendsList[i].id == otherUserId) {
+        this.friendTracker = true;
+      }
+    }
+
+    // this.friendTracker = this.friendsList.friends.some(-
+    //   (friend) => friend.id === otherUserId
+    // );
+  },
+
+  watch: {
+    $route(to, from) {
+      // Check if the route includes "/chat"
+      if (to.fullPath.includes("/chat")) {
+        // Check if the friend list includes the current otherUserId
+        const otherUserId = this.$route.params.otherUserId;
+        console.log(this.friendsList);
+
+        for (let i = 0; i < this.friendsList.friends.length; i++) {
+          if (this.friendsList.friends[i].id == otherUserId) {
+            this.friendTracker = true;
+          }
+        }
+      } else {
+        this.friendTracker = false;
+      }
     },
   },
 };

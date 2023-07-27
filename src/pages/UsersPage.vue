@@ -37,28 +37,26 @@
         <q-item
           v-for="(user, key) in usersFriends"
           :key="key"
-          :to="'/chat/' + user.friendId"
+          :to="'/chat/' + user.id"
           clickable
           v-ripple
         >
           <q-item-section avatar>
             <q-avatar color="primary" text-color="white">
-              {{ user.friendName.charAt(0) }}
+              {{ user.name.charAt(0) }}
             </q-avatar>
           </q-item-section>
 
           <q-item-section>
-            <q-item-label>{{ user.friendName }}</q-item-label>
+            <q-item-label>{{ user.name }}</q-item-label>
             <q-item-label class="email">{{ user.email }}</q-item-label>
           </q-item-section>
 
           <q-item-section side>
             <q-badge
-              :color="
-                isFriendOnline(user.friendId) ? 'light-green-5' : 'grey-4'
-              "
+              :color="isFriendOnline(user.id) ? 'light-green-5' : 'grey-4'"
             >
-              {{ isFriendOnline(user.friendId) ? "Online" : "Offline" }}
+              {{ isFriendOnline(user.id) ? "Online" : "Offline" }}
             </q-badge>
           </q-item-section>
         </q-item>
@@ -112,12 +110,9 @@ export default {
       "FriendsList",
     ]),
 
-    isFriendOnline(friendId) {
-      // Check if the friendId is included in the list of users
-      return (
-        Object.keys(this.users).includes(friendId) &&
-        this.users[friendId].online
-      );
+    isFriendOnline(id) {
+      // Check if the id is included in the list of users
+      return Object.keys(this.users).includes(id) && this.users[id].online;
     },
 
     makeConnection() {

@@ -427,6 +427,7 @@ const actions = {
     console.log(payload);
 
     let friends = {};
+    let current = {};
 
     firebaseDb
       .ref("Friends/" + payload.currentId)
@@ -434,13 +435,18 @@ const actions = {
       .then((snapshot1) => {
         // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
         friends = snapshot1.val() || [];
+        current = snapshot1.val() || [];
 
         console.log(friends);
         friends.push(payload.friends);
+        current.push(payload.currentUser);
+
+        console.log(payload.currentUser);
 
         console.log(friends);
 
         firebaseDb.ref("Friends/" + payload.currentId).set(friends);
+        firebaseDb.ref("Friends/" + payload.friends.id).set(current);
       });
   },
 
