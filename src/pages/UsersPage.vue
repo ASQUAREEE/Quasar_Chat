@@ -6,7 +6,7 @@
       </div>
 
       <p v-if="search && !Object.keys(users).length">No search results</p>
-      <div v-if="search">
+      <div v-if="search && search.length >= 3">
         <q-item
           v-for="(user, key) in users"
           :key="key"
@@ -31,6 +31,10 @@
             </q-badge>
           </q-item-section>
         </q-item>
+      </div>
+
+      <div v-if="search && search.length < 3">
+        <p>Type atleast first three words of your friend's username or email</p>
       </div>
 
       <div v-if="!search">
