@@ -102,6 +102,7 @@ export default {
           id: "",
           name: "",
           email: "",
+          unreadMessage: 0,
         },
 
         currentUser: {

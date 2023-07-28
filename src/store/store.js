@@ -19,6 +19,8 @@ const state = {
 
   friendsList: [],
 
+  unreadMessages: {},
+
   // otherUserId: null,
 };
 
@@ -78,6 +80,29 @@ const mutations = {
     state.friendsList = payload;
     console.log("friend list");
     console.log(payload);
+  },
+
+  setUnreadMessages(state, payload) {
+    state.unreadMessages = payload;
+  },
+  incrementUnreadMessages(state, userId) {
+    if (state.unreadMessages[userId]) {
+      state.unreadMessages[userId]++;
+    } else {
+      state.unreadMessages[userId] = 1;
+    }
+  },
+  clearUnreadMessages(state, userId) {
+    state.unreadMessages[userId] = 0;
+  },
+
+  MessageCounter(state, payload) {
+    // state.friendsList.friends.payload.otherUserId.unreadMessage =
+    //   payload.messageCounter;
+    let helper = payload.updateCounter.otherUserId;
+
+    state.friendsList.friends[helper].unreadMessage =
+      payload.updateCounter.messageCounter;
   },
   // setOtherUserId(state, otherUserId) {
   //   state.otherUserId = otherUserId;
@@ -394,7 +419,27 @@ const actions = {
         messageId,
         messageDetails,
       });
+
+      // Increment unread messages for the recipient user
+      // if (state.userDetails.userId === payload.otherUserId) {
+      //   commit("incrementUnreadMessages", otherUserId);
+      // }
     });
+  },
+
+  clearUnreadMessages({ commit }, otherUserId) {
+    let userId = state.userDetails.userId;
+
+    // let friendChecker = false;
+    // friendChecker = state.friendsList.friends.hasOwnProperty(otherUserId);
+
+    if (state.friendsList.friends.hasOwnProperty(otherUserId)) {
+      firebaseDb.ref("Friends/" + userId + "/" + otherUserId).update({
+        unreadMessage: 0,
+      });
+
+      commit("clearUnreadMessages", userId);
+    }
   },
 
   firebaseStopGettingMessages({ commit }) {
@@ -407,7 +452,7 @@ const actions = {
     }
   },
 
-  firebaseSendMessage({}, payload) {
+  firebaseSendMessage({ commit }, payload) {
     // console.log("payload: ", payload);
     firebaseDb
       .ref("chats/" + state.userDetails.userId + "/" + payload.otherUserId)
@@ -417,6 +462,45 @@ const actions = {
     firebaseDb
       .ref("chats/" + payload.otherUserId + "/" + state.userDetails.userId)
       .push(payload.message);
+
+    let userId = state.userDetails.userId;
+    let otherUserId = payload.otherUserId;
+
+    // Check if the current route includes the chat/otherUserId path segment
+    const currentRoute = window.location.pathname;
+    const chatPath = "/chat/" + otherUserId;
+    const isChatRoute = currentRoute.includes(chatPath);
+    let messageCounter;
+
+    let updateCounter = {};
+    let friendChecker = false;
+    friendChecker = state.friendsList.friends.hasOwnProperty(otherUserId);
+
+    console.log(friendChecker);
+
+    if (!isChatRoute && friendChecker) {
+      firebaseDb
+        .ref("Friends/" + otherUserId + "/" + userId)
+        .once("value")
+        .then((snapshot1) => {
+          // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
+          messageCounter = snapshot1.val() || [];
+
+          console.log(messageCounter);
+          messageCounter.unreadMessage = messageCounter.unreadMessage + 1;
+
+          firebaseDb.ref("Friends/" + otherUserId + "/" + userId).update({
+            unreadMessage: messageCounter.unreadMessage,
+          });
+
+          updateCounter.otherUserId = otherUserId;
+          updateCounter.messageCounter = messageCounter.unreadMessage;
+
+          commit("MessageCounter", {
+            updateCounter,
+          });
+        });
+    }
   },
 
   setSearch({ commit }, payload) {
@@ -445,8 +529,12 @@ const actions = {
 
         console.log(friends);
 
-        firebaseDb.ref("Friends/" + payload.currentId).set(friends);
-        firebaseDb.ref("Friends/" + payload.friends.id).set(current);
+        firebaseDb
+          .ref("Friends/" + payload.currentId + "/" + payload.friends.id)
+          .set(friends[0]);
+        firebaseDb
+          .ref("Friends/" + payload.friends.id + "/" + payload.currentId)
+          .set(current[0]);
       });
   },
 
@@ -540,6 +628,10 @@ const getters = {
     let usersFriends = state.friendsList.friends;
     console.log(usersFriends);
     return usersFriends;
+  },
+
+  unreadMessages: (state) => {
+    return state.unreadMessages;
   },
 };
 

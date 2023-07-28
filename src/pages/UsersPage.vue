@@ -19,7 +19,6 @@
               {{ user.name.charAt(0) }}
             </q-avatar>
           </q-item-section>
-
           <q-item-section>
             <q-item-label>{{ user.name }}</q-item-label>
             <q-item-label class="email">{{ user.email }}</q-item-label>
@@ -55,6 +54,17 @@
             <q-item-label>{{ user.name }}</q-item-label>
             <q-item-label class="email">{{ user.email }}</q-item-label>
           </q-item-section>
+
+          <q-btn
+            v-if="user.unreadMessage > 0"
+            dense
+            color="purple"
+            round
+            icon="email"
+            class="q-ml-md"
+          >
+            <q-badge color="red" floating>{{ user.unreadMessage }}</q-badge>
+          </q-btn>
 
           <q-item-section side>
             <q-badge
@@ -98,6 +108,7 @@ export default {
       "connectionsQueue",
       "userDetails",
       "friendsList",
+      "unreadMessages",
     ]),
   },
 
@@ -151,6 +162,10 @@ export default {
         this.letsConnectQueue();
       }
     }, 100); // Run the checkConnections method every 1 second (adjust the interval as needed)
+
+    // this.$store.dispatch("clearUnreadMessages", this.$route.params.userId);
+
+    // this.clearUnreadMessages(this.$route.params.userId);
   },
 
   beforeUnmount() {

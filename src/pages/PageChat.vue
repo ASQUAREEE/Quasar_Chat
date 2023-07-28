@@ -70,6 +70,7 @@ export default {
       "firebaseGetMessages",
       "firebaseStopGettingMessages",
       "firebaseSendMessage",
+      "clearUnreadMessages",
     ]),
 
     sendMessage() {
@@ -112,6 +113,7 @@ export default {
   mounted() {
     this.showMessages = Object.keys(this.messages).length > 0;
     this.firebaseGetMessages(this.$route.params.otherUserId);
+    this.clearUnreadMessages(this.$route.params.otherUserId);
   },
 
   unmounted() {
