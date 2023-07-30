@@ -719,6 +719,28 @@ const getters = {
 
     return state.users;
   },
+  taskFilteredgroup: (state) => {
+    let taskFiltered = {};
+
+    if (state.search) {
+      //populate the empty object
+      Object.keys(state.groups).forEach((key) => {
+        let task = state.groups[key];
+
+        let taskNameLowerCase = task.name.toLowerCase();
+        // let taskEmailLowerCase = task.email.toLowerCase();
+
+        let searchLowerCase = state.search.toLowerCase();
+
+        if (taskNameLowerCase.includes(searchLowerCase)) {
+          taskFiltered[key] = task;
+        }
+      });
+      return taskFiltered;
+    }
+
+    return state.groups;
+  },
 
   users: (state, getters) => {
     let taskFiltered = getters.taskFiltered;
@@ -734,6 +756,19 @@ const getters = {
     // console.log(state.users);
 
     return usersFiltered;
+  },
+  groupsN: (state, getters) => {
+    let taskFiltered = getters.taskFilteredgroup;
+    // console.log("hhaha");
+
+    let groupsFiltered = {};
+    Object.keys(taskFiltered).forEach((key) => {
+      groupsFiltered[key] = taskFiltered[key];
+    });
+
+    // console.log(state.users);
+
+    return groupsFiltered;
   },
 
   currentUser: (state) => {

@@ -1,9 +1,9 @@
 <template>
   <q-page v-if="!tracker" class="flex q-pa-md">
     <q-list class="full-width" separator>
-      <!-- <div class="row q-mb-lg">
+      <div class="row q-mb-lg">
         <search />
-      </div> -->
+      </div>
       <!-- <div v-if="search && search.length >= 3">
         <q-item
           v-for="(user, key) in users"
@@ -24,6 +24,27 @@
 
         </q-item>
       </div> -->
+      <p v-if="search && !Object.keys(groupsN).length">No search results</p>
+      <div v-if="search && search.length >= 2">
+        <q-item
+          v-for="(group, key) in groupsN"
+          :key="key"
+          :to="'/group/' + group.groupId"
+          clickable
+          v-ripple
+        >
+          <q-item-section avatar>
+            <q-avatar color="primary" text-color="white">
+              {{ group.name.charAt(0) }}
+            </q-avatar>
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>{{ group.name }}</q-item-label>
+            <!-- <q-item-label class="email">{{ user.email }}</q-item-label> -->
+          </q-item-section>
+        </q-item>
+      </div>
 
       <div v-if="!search">
         <q-item
@@ -61,12 +82,12 @@ export default {
   },
 
   components: {
-    // search,
+    search,
   },
 
   computed: {
-    ...mapGetters("store1", ["groupById", "currentUser"]),
-    ...mapState("store1", ["groups", "userDetails"]),
+    ...mapGetters("store1", ["groupById", "currentUser", "groupsN"]),
+    ...mapState("store1", ["groups", "userDetails", "search"]),
   },
 
   methods: {
