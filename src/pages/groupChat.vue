@@ -1,20 +1,20 @@
 <template>
   <q-page ref="pageChat" class="page-chat flex column">
-    <q-banner
-      v-if="!otherUserDetails.online"
-      class="bg-grey-4 text-center fixed-top q-banner"
-    >
-      {{ otherUserDetails.name }} is offline.
-    </q-banner>
     <div class="q-pa-md column col justify-end">
       <q-chat-message
         class="messages-container"
-        v-for="(message, key) in messages"
+        v-for="(message, key) in groupMessages"
         :key="key"
-        :name="message.from == 'me' ? userDetails.name : otherUserDetails.name"
+        :name="
+          message.from.userId == userDetails.userId
+            ? userDetails.name
+            : message.from.name
+        "
         :text="[message.text]"
-        :sent="message.from == 'me' ? true : false"
-        :bg-color="message.from == 'me' ? 'light-green' : 'white'"
+        :sent="message.from.userId == userDetails.userId ? true : false"
+        :bg-color="
+          message.from.userId == userDetails.userId ? 'light-green' : 'white'
+        "
       />
     </div>
     <q-footer elevated>
@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions, mapGetters } from "vuex";
 import mixinOtherDetails from "src/mixins/mixin-other-user-details.js";
 
 export default {
@@ -62,24 +62,26 @@ export default {
   },
 
   computed: {
-    ...mapState("store1", ["messages", "userDetails"]),
+    ...mapState("store1", ["userDetails", "groupMessages"]),
+    ...mapGetters("store1", ["currentUser"]),
   },
 
   methods: {
     ...mapActions("store1", [
-      "firebaseGetMessages",
-      "firebaseStopGettingMessages",
-      "firebaseSendMessage",
-      "clearUnreadMessages",
+      "groupGetMessages",
+      // "firebaseStopGettingMessages",
+      "groupSendMessage",
+      // "clearUnreadMessages",
     ]),
 
     sendMessage() {
-      this.firebaseSendMessage({
+      let currentUser = this.userDetails;
+      this.groupSendMessage({
         message: {
           text: this.newMessage,
-          from: "me",
+          from: currentUser,
         },
-        otherUserId: this.$route.params.otherUserId,
+        groupId: this.$route.params.groupId,
       });
       // Clear the input after sending the message
 
@@ -113,13 +115,14 @@ export default {
   },
 
   mounted() {
-    this.showMessages = Object.keys(this.messages).length > 0;
-    this.firebaseGetMessages(this.$route.params.otherUserId);
-    this.clearUnreadMessages(this.$route.params.otherUserId);
+    this.showMessages = Object.keys(this.groupMessages).length > 0;
+    // this.firebaseGetMessages(this.$route.params.otherUserId);
+    this.groupGetMessages(this.$route.params.groupId);
+    // this.clearUnreadMessages(this.$route.params.otherUserId);
   },
 
   unmounted() {
-    this.firebaseStopGettingMessages();
+    // this.firebaseStopGettingMessages();
   },
 };
 </script>

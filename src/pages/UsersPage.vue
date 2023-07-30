@@ -1,99 +1,138 @@
 <template>
-  <q-page v-if="!tracker" class="flex q-pa-md">
-    <q-list class="full-width" separator>
-      <div class="row q-mb-lg">
-        <search />
-      </div>
+  <q-tabs
+    v-model="tab"
+    dense
+    class="text-grey"
+    active-color="primary"
+    indicator-color="primary"
+    align="justify"
+    narrow-indicator
+  >
+    <q-tab name="individual" label="Individual Chat" />
+    <q-tab name="group" label="Group Chat" />
+  </q-tabs>
 
-      <p v-if="search && !Object.keys(users).length">No search results</p>
-      <div v-if="search && search.length >= 3">
-        <q-item
-          v-for="(user, key) in users"
-          :key="key"
-          :to="'/chat/' + key"
-          clickable
-          v-ripple
-        >
-          <q-item-section avatar>
-            <q-avatar color="primary" text-color="white">
-              {{ user.name.charAt(0) }}
-            </q-avatar>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>{{ user.name }}</q-item-label>
-            <q-item-label class="email">{{ user.email }}</q-item-label>
-          </q-item-section>
+  <q-separator />
 
-          <q-item-section side>
-            <q-badge :color="user.online ? 'light-green-5' : 'grey-4'">
-              {{ user.online ? "Online" : "Offline" }}
-            </q-badge>
-          </q-item-section>
-        </q-item>
-      </div>
+  <q-tab-panels v-model="tab" animated>
+    <q-tab-panel name="individual">
+      <q-page :tab="tab" v-if="!tracker" class="flex q-pa-md">
+        <q-list class="full-width" separator>
+          <div class="row q-mb-lg">
+            <search />
+          </div>
 
-      <div v-if="search && search.length < 3">
-        <p>Type atleast first three words of your friend's username or email</p>
-      </div>
-
-      <div v-if="!search">
-        <q-item
-          v-for="(user, key) in usersFriends"
-          :key="key"
-          :to="'/chat/' + user.id"
-          clickable
-          v-ripple
-        >
-          <q-item-section avatar>
-            <q-avatar color="primary" text-color="white">
-              {{ user.name.charAt(0) }}
-            </q-avatar>
-          </q-item-section>
-
-          <q-item-section>
-            <q-item-label>{{ user.name }}</q-item-label>
-            <q-item-label class="email">{{ user.email }}</q-item-label>
-          </q-item-section>
-
-          <q-btn
-            v-if="user.unreadMessage > 0"
-            dense
-            color="purple"
-            round
-            icon="email"
-            class="q-ml-md"
-          >
-            <q-badge color="red" floating>{{ user.unreadMessage }}</q-badge>
-          </q-btn>
-
-          <q-item-section side>
-            <q-badge
-              :color="isFriendOnline(user.id) ? 'light-green-5' : 'grey-4'"
+          <p v-if="search && !Object.keys(users).length">No search results</p>
+          <div v-if="search && search.length >= 3">
+            <q-item
+              v-for="(user, key) in users"
+              :key="key"
+              :to="'/chat/' + key"
+              clickable
+              v-ripple
             >
-              {{ isFriendOnline(user.id) ? "Online" : "Offline" }}
-            </q-badge>
+              <q-item-section avatar>
+                <q-avatar color="primary" text-color="white">
+                  {{ user.name.charAt(0) }}
+                </q-avatar>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ user.name }}</q-item-label>
+                <q-item-label class="email">{{ user.email }}</q-item-label>
+              </q-item-section>
+
+              <q-item-section side>
+                <q-badge :color="user.online ? 'light-green-5' : 'grey-4'">
+                  {{ user.online ? "Online" : "Offline" }}
+                </q-badge>
+              </q-item-section>
+            </q-item>
+          </div>
+
+          <div v-if="search && search.length < 3">
+            <p>
+              Type atleast first three words of your friend's username or email
+            </p>
+          </div>
+
+          <div v-if="!search">
+            <q-item
+              v-for="(user, key) in usersFriends"
+              :key="key"
+              :to="'/chat/' + user.id"
+              clickable
+              v-ripple
+            >
+              <q-item-section avatar>
+                <q-avatar color="primary" text-color="white">
+                  {{ user.name.charAt(0) }}
+                </q-avatar>
+              </q-item-section>
+
+              <q-item-section>
+                <q-item-label>{{ user.name }}</q-item-label>
+                <q-item-label class="email">{{ user.email }}</q-item-label>
+              </q-item-section>
+
+              <q-btn
+                v-if="user.unreadMessage > 0"
+                dense
+                color="purple"
+                round
+                icon="email"
+                class="q-ml-md"
+              >
+                <q-badge color="red" floating>{{ user.unreadMessage }}</q-badge>
+              </q-btn>
+
+              <q-item-section side>
+                <q-badge
+                  :color="isFriendOnline(user.id) ? 'light-green-5' : 'grey-4'"
+                >
+                  {{ isFriendOnline(user.id) ? "Online" : "Offline" }}
+                </q-badge>
+              </q-item-section>
+            </q-item>
+          </div>
+
+          <q-item-section>
+            <q-btn class="makeNew" @click="makeConnection"
+              >Make New Friends</q-btn
+            >
           </q-item-section>
-        </q-item>
-      </div>
+        </q-list>
+      </q-page>
 
-      <q-item-section>
-        <q-btn class="makeNew" @click="makeConnection">Make New Friends</q-btn>
-      </q-item-section>
-    </q-list>
-  </q-page>
+      <q-page v-if="tracker" class="body-loading">
+        <div class="loader">
+          <div class="inner one"></div>
+          <div class="inner two"></div>
+          <div class="inner three"></div>
+        </div>
+      </q-page>
+    </q-tab-panel>
 
-  <q-page v-if="tracker" class="body-loading">
-    <div class="loader">
-      <div class="inner one"></div>
-      <div class="inner two"></div>
-      <div class="inner three"></div>
-    </div>
-  </q-page>
+    <q-tab-panel name="group">
+      <q-page :tab="tab">
+        <groupPage />
+        <link
+          href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet"
+        />
+        <div class="floating-container">
+          <router-link to="/creategroup/">
+            <div to="creategroup" class="floating-button">+</div>
+          </router-link>
+        </div>
+      </q-page>
+    </q-tab-panel>
+  </q-tab-panels>
 </template>
 
 <script>
 import { mapActions, mapState, mapGetters } from "vuex";
 import search from "./search.vue";
+import groupPage from "./groupPage.vue";
 
 export default {
   data() {
@@ -103,6 +142,7 @@ export default {
         currentActive: "",
         totalActive: "",
       },
+      tab: "individual",
 
       tracker: false,
     };
@@ -122,6 +162,7 @@ export default {
 
   components: {
     search,
+    groupPage,
   },
 
   methods: {
@@ -312,5 +353,96 @@ html {
   100% {
     transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg);
   }
+}
+
+@-webkit-keyframes come-in {
+  0% {
+    -webkit-transform: translatey(100px);
+    transform: translatey(100px);
+    opacity: 0;
+  }
+  30% {
+    -webkit-transform: translateX(-50px) scale(0.4);
+    transform: translateX(-50px) scale(0.4);
+  }
+  70% {
+    -webkit-transform: translateX(0px) scale(1.2);
+    transform: translateX(0px) scale(1.2);
+  }
+  100% {
+    -webkit-transform: translatey(0px) scale(1);
+    transform: translatey(0px) scale(1);
+    opacity: 1;
+  }
+}
+@keyframes come-in {
+  0% {
+    -webkit-transform: translatey(100px);
+    transform: translatey(100px);
+    opacity: 0;
+  }
+  30% {
+    -webkit-transform: translateX(-50px) scale(0.4);
+    transform: translateX(-50px) scale(0.4);
+  }
+  70% {
+    -webkit-transform: translateX(0px) scale(1.2);
+    transform: translateX(0px) scale(1.2);
+  }
+  100% {
+    -webkit-transform: translatey(0px) scale(1);
+    transform: translatey(0px) scale(1);
+    opacity: 1;
+  }
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  background: #eaedf2;
+  font-family: "Roboto", sans-serif;
+}
+
+.floating-container {
+  position: fixed;
+  width: 100px;
+  height: 100px;
+  bottom: 0;
+  right: 0;
+  margin: 35px 25px;
+}
+.floating-container:hover {
+  height: 300px;
+}
+.floating-container:hover .floating-button {
+  box-shadow: 0 10px 25px rgba(44, 179, 240, 0.6);
+  -webkit-transform: translatey(5px);
+  transform: translatey(5px);
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+}
+
+.floating-container .floating-button {
+  position: absolute;
+  width: 65px;
+  height: 65px;
+  background: #2cb3f0;
+  bottom: 0;
+  border-radius: 50%;
+  left: 0;
+  right: 0;
+  margin: auto;
+  color: white;
+  line-height: 65px;
+  text-align: center;
+  font-size: 23px;
+  z-index: 100;
+  box-shadow: 0 10px 25px -5px rgba(44, 179, 240, 0.6);
+  cursor: pointer;
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
 }
 </style>

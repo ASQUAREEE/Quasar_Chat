@@ -5,10 +5,17 @@ const routes = [
     children: [
       { path: "", component: () => import("pages/UsersPage.vue") },
       { path: "/auth", component: () => import("pages/AuthPage.vue") },
-      // { path: "/groupChat", component: () => import("pages/groupChat.vue") },
+      {
+        path: "/creategroup",
+        component: () => import("pages/CreateGroup.vue"),
+      },
       {
         path: "/chat/:otherUserId",
         component: () => import("pages/PageChat.vue"),
+      },
+      {
+        path: "/group/:groupId",
+        component: () => import("pages/groupChat.vue"),
       },
     ],
   },

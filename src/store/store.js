@@ -22,6 +22,9 @@ const state = {
   unreadMessages: {},
 
   // otherUserId: null,
+
+  groups: {}, // Object containing groups
+  groupMessages: {}, // Object containing group messages
 };
 
 const mutations = {
@@ -104,13 +107,22 @@ const mutations = {
     state.friendsList.friends[helper].unreadMessage =
       payload.updateCounter.messageCounter;
   },
-  // setOtherUserId(state, otherUserId) {
-  //   state.otherUserId = otherUserId;
-  // },
 
-  // algoConnection(state, payload) {
-  //   console.log("hahah");
-  // },
+  addGroup(state, group) {
+    state.groups[group.groupId] = group;
+  },
+
+  getGroups(state, payload) {
+    console.log(payload);
+
+    state.groups = payload;
+  },
+
+  addGroupMessage(state, payload) {
+    console.log(payload.messageDetails);
+
+    state.groupMessages[payload.messageId] = payload.messageDetails;
+  },
 };
 
 const actions = {
@@ -433,7 +445,11 @@ const actions = {
     // let friendChecker = false;
     // friendChecker = state.friendsList.friends.hasOwnProperty(otherUserId);
 
-    if (state.friendsList.friends.hasOwnProperty(otherUserId)) {
+    if (
+      state.friendsList &&
+      state.friendsList.friends &&
+      state.friendsList.friends.hasOwnProperty(otherUserId)
+    ) {
       firebaseDb.ref("Friends/" + userId + "/" + otherUserId).update({
         unreadMessage: 0,
       });
@@ -510,8 +526,8 @@ const actions = {
   makeFriends({}, payload) {
     console.log(payload);
 
-    let friends = {};
-    let current = {};
+    let friends = [];
+    let current = [];
 
     firebaseDb
       .ref("Friends/" + payload.currentId)
@@ -555,6 +571,108 @@ const actions = {
           friends,
         });
       });
+  },
+
+  createGroups({ commit }, { groupName, creatorId }) {
+    // Implement Firebase API call to create a new group and commit to state
+    // For simplicity, we assume the group is immediately created and returned
+
+    const newGroup = {
+      groupId: "g" + creatorId + "r" + Math.random().toString(36).substr(2, 5), // Random groupId for simplicity
+      name: groupName,
+      creatorId: creatorId,
+      members: [creatorId],
+    };
+
+    console.log(newGroup.groupId);
+
+    if (
+      newGroup.name != undefined &&
+      newGroup.name != null &&
+      newGroup.creatorId != undefined &&
+      newGroup.creatorId != null
+    ) {
+      firebaseDb.ref("Groups/" + newGroup.groupId).set(newGroup);
+      commit("addGroup", newGroup);
+    }
+
+    return newGroup;
+  },
+
+  joinGroup({ commit, state }, { groupId, memberId }) {
+    // Implement Firebase API call to join a group and update state
+    // For simplicity, we assume the member is immediately added to the group and returned
+    const group = state.groups[groupId];
+    if (group) {
+      group.members.push(memberId);
+      commit("addGroup", group);
+      return group;
+    }
+    return null; // Group not found
+  },
+
+  groupSendMessage({ commit }, { message, groupId }) {
+    console.log(message);
+    console.log(groupId);
+
+    firebaseDb.ref("groupChats/" + groupId).push(message);
+    // Implement Firebase API call to send a group message and commit to state
+  },
+
+  groupGetMessages({ commit }, groupId) {
+    messagesRef = firebaseDb.ref("groupChats/" + groupId);
+
+    messagesRef.on("child_added", (snapshot1) => {
+      let messageDetails = snapshot1.val();
+      let messageId = snapshot1.key;
+      console.log(messageDetails);
+
+      commit("addGroupMessage", {
+        messageDetails,
+        messageId,
+      });
+    });
+  },
+  // fetchGroups({ commit }) {
+  //   firebaseDb
+  //     .ref("groups/" + payload.groupId)
+  //     .once("value")
+  //     .then((snapshot1) => {
+  //       // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
+  //       groups = snapshot1.val() || [];
+
+  //       console.log(groups);
+  //     });
+  //   // Implement Firebase API call to fetch groups and commit to state
+  //   // For simplicity, we assume you have an array of groups
+  //   const groups = [
+  //     { groupId: "group1", name: "Group 1" },
+  //     { groupId: "group2", name: "Group 2" },
+  //     // Add more groups as needed
+  //   ];
+  //   commit("setGroups", groups);
+  // },
+
+  fetchGroupMessages({ commit }, groupId) {
+    // Implement Firebase API call to fetch group messages and commit to state
+  },
+
+  fetchGroup({ commit }, payload) {
+    console.log(payload);
+    let groups;
+
+    firebaseDb
+      .ref("Groups/")
+      .once("value")
+      .then((snapshot1) => {
+        // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
+        groups = snapshot1.val() || [];
+
+        console.log(groups);
+
+        commit("getGroups", groups);
+      });
+    // return payload;
   },
 };
 
@@ -632,6 +750,9 @@ const getters = {
 
   unreadMessages: (state) => {
     return state.unreadMessages;
+  },
+  groupById: (state) => (groupId) => {
+    return state.groups[groupId] || null;
   },
 };
 

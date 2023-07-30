@@ -3,7 +3,10 @@
     <q-header elevated>
       <q-toolbar>
         <q-btn
-          v-if="$route.fullPath.includes('/chat')"
+          v-if="
+            $route.fullPath.includes('/chat') ||
+            $route.fullPath.includes('/group')
+          "
           @click="$router.go(-1)"
           dense
           icon="arrow_back"
@@ -29,7 +32,10 @@
           label="Login"
         />
         <q-btn
-          v-else-if="!$route.fullPath.includes('/chat')"
+          v-else-if="
+            !$route.fullPath.includes('/chat') &&
+            !$route.fullPath.includes('/group')
+          "
           @click="logoutUser"
           class="absolute-right q-pr-sm"
           no-caps
@@ -62,7 +68,10 @@
         />
 
         <q-btn
-          v-if="!$route.fullPath.includes('/chat')"
+          v-if="
+            !$route.fullPath.includes('/chat') &&
+            !$route.fullPath.includes('/group')
+          "
           to="/home"
           class="absolute-left q-pr-sm"
           no-caps
@@ -121,16 +130,19 @@ export default {
   },
 
   computed: {
-    ...mapState("store1", ["userDetails", "friendsList"]),
+    ...mapState("store1", ["userDetails", "friendsList", "groups"]),
 
     title() {
       let currentPath = this.$route.fullPath;
+
       if (currentPath === "/") {
         return "ASQUARE CHAT";
       } else if (currentPath.includes("/chat")) {
         return this.otherUserDetails.name;
       } else if (currentPath === "/auth") {
         return "Login";
+      } else if (currentPath.includes("/group")) {
+        return this.groups[this.$route.params.groupId].name;
       }
 
       return "Default Title"; // Add a default return value
@@ -169,35 +181,15 @@ export default {
     },
   },
 
-  created() {
-    // Check if the friend list includes the current otherUserId
-    const otherUserId = this.$route.params.otherUserId;
-    console.log(this.friendsList);
-
-    for (let i = 0; i < this.friendsList.length; i++) {
-      if (this.friendsList[i].id == otherUserId) {
-        this.friendTracker = true;
-      }
-    }
-
-    // this.friendTracker = this.friendsList.friends.some(-
-    //   (friend) => friend.id === otherUserId
-    // );
-  },
-
   watch: {
     $route(to, from) {
       // Check if the route includes "/chat"
       if (to.fullPath.includes("/chat")) {
         // Check if the friend list includes the current otherUserId
         const otherUserId = this.$route.params.otherUserId;
-        console.log(this.friendsList);
 
-        for (let i = 0; i < this.friendsList.friends.length; i++) {
-          if (this.friendsList.friends[i].id == otherUserId) {
-            this.friendTracker = true;
-          }
-        }
+        this.friendTracker =
+          this.friendsList.friends.hasOwnProperty(otherUserId);
       } else {
         this.friendTracker = false;
       }
