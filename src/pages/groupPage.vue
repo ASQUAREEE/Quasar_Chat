@@ -48,9 +48,9 @@
 
       <div v-if="!search">
         <q-item
-          v-for="(group, key) in groups"
+          v-for="(group, key) in totalGroups"
           :key="key"
-          :to="'/group/' + group.groupId"
+          :to="'/group/' + group.id"
           clickable
           v-ripple
         >
@@ -64,6 +64,9 @@
             <q-item-label>{{ group.name }}</q-item-label>
             <!-- <q-item-label class="email">{{ user.email }}</q-item-label> -->
           </q-item-section>
+          <q-btn dense color="purple" round icon="email" class="q-ml-md">
+            <q-badge color="red" floating>{{ group.unreadMessage }}</q-badge>
+          </q-btn>
         </q-item>
       </div>
     </q-list>
@@ -86,12 +89,18 @@ export default {
   },
 
   computed: {
-    ...mapGetters("store1", ["groupById", "currentUser", "groupsN"]),
-    ...mapState("store1", ["groups", "userDetails", "search"]),
+    ...mapGetters("store1", [
+      "groupById",
+      "currentUser",
+      "groupsN",
+      "totalGroups",
+    ]),
+    ...mapState("store1", ["groups", "userDetails", "search", "groupsList"]),
   },
 
   methods: {
-    ...mapActions("store1", ["fetchGroup"]),
+    ...mapGetters("store1", ["totalGroups"]),
+    ...mapActions("store1", ["fetchGroup", "GroupsList"]),
   },
 
   created() {},
@@ -100,9 +109,16 @@ export default {
     userDetails: {
       handler(userDetail) {
         this.fetchGroup(userDetail);
+        this.GroupsList(userDetail.userId);
       },
       immediate: true, // Trigger the handler immediately on component mount
     },
+    // groupsList: {
+    //   handler(groupsList) {
+    //     this.listOfGroups();
+    //   },
+    //   immediate: true, // Trigger the handler immediately on component mount
+    // },
   },
 };
 </script>

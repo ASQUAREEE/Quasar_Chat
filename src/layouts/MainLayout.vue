@@ -66,6 +66,25 @@
           flat
           label="your friend"
         />
+        <q-btn
+          v-if="$route.fullPath.includes('/group') && !groupTracker"
+          @click="addGroups"
+          class="absolute-right q-pr-sm"
+          no-caps
+          dense
+          icon="account_circle"
+          flat
+          label="join the group"
+        />
+        <q-btn
+          v-if="$route.fullPath.includes('/group') && groupTracker"
+          class="absolute-right q-pr-sm"
+          no-caps
+          dense
+          icon="account_circle"
+          flat
+          label="You are amazing"
+        />
 
         <q-btn
           v-if="
@@ -120,8 +139,24 @@ export default {
           id: "",
         },
       },
+      groupsDetails: {
+        currentId: "",
+
+        groups: {
+          id: "",
+          name: "",
+          unreadMessage: 0,
+        },
+
+        currentUser: {
+          name: "",
+          email: "",
+          id: "",
+        },
+      },
 
       friendTracker: false,
+      groupTracker: false,
     };
   },
 
@@ -130,7 +165,12 @@ export default {
   },
 
   computed: {
-    ...mapState("store1", ["userDetails", "friendsList", "groups"]),
+    ...mapState("store1", [
+      "userDetails",
+      "friendsList",
+      "groups",
+      "groupsList",
+    ]),
 
     title() {
       let currentPath = this.$route.fullPath;
@@ -142,7 +182,9 @@ export default {
       } else if (currentPath === "/auth") {
         return "Login";
       } else if (currentPath.includes("/group")) {
-        return this.groups[this.$route.params.groupId].name;
+        return this.myGroupDetails;
+        // return this.myGroupDetails;
+        // return this.groups[this.$route.params.groupId].name;
       }
 
       return "Default Title"; // Add a default return value
@@ -159,7 +201,7 @@ export default {
   },
   methods: {
     ...mapGetters("store1", ["currentUser"]),
-    ...mapActions("store1", ["logoutUser", "makeFriends"]),
+    ...mapActions("store1", ["logoutUser", "makeFriends", "makeGroups"]),
 
     addFriends() {
       this.friendDetails.currentId = this.currentUser();
@@ -179,6 +221,25 @@ export default {
       this.makeFriends(this.friendDetails);
       console.log(this.friendDetails);
     },
+    addGroups() {
+      this.groupsDetails.currentId = this.currentUser();
+
+      this.groupsDetails.groups.id = this.$route.params.groupId;
+      this.groupsDetails.groups.name =
+        this.groups[this.$route.params.groupId].name;
+      // this.friendDetails.friends.email = this.otherUserDetails.email;
+
+      this.groupsDetails.currentUser.name = this.userDetails.name;
+      this.groupsDetails.currentUser.email = this.userDetails.email;
+      this.groupsDetails.currentUser.id = this.userDetails.userId;
+
+      // this.friendDetails.currentId.name = this.userDetails
+
+      console.log(this.userDetails);
+
+      this.makeGroups(this.groupsDetails);
+      console.log(this.groupsDetails);
+    },
   },
 
   watch: {
@@ -187,11 +248,28 @@ export default {
       if (to.fullPath.includes("/chat")) {
         // Check if the friend list includes the current otherUserId
         const otherUserId = this.$route.params.otherUserId;
-
+        console.log(otherUserId);
         this.friendTracker =
           this.friendsList.friends.hasOwnProperty(otherUserId);
+        this.groupTracker = false; // Set groupTracker to false when "/chat" route is matched.
+      } else if (to.fullPath.includes("/group")) {
+        // Check if the group list includes the current groupId
+        const groupId = this.$route.params.groupId;
+        console.log(this.groups[this.$route.params.groupId]);
+
+        if (
+          this.groupsList != null &&
+          this.groupsList != undefined &&
+          this.groupsList.groups.hasOwnProperty(groupId)
+        ) {
+          this.groupTracker = true;
+        } else {
+          this.groupTracker = false; // Set groupTracker to false if the group doesn't exist.
+        }
+        this.friendTracker = false; // Set friendTracker to false when "/group" route is matched.
       } else {
         this.friendTracker = false;
+        this.groupTracker = false;
       }
     },
   },

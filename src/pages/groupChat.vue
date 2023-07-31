@@ -1,5 +1,5 @@
 <template>
-  <q-page ref="pageChat" class="page-chat flex column">
+  <q-page ref="groupChat" class="page-chat flex column">
     <div class="q-pa-md column col justify-end">
       <q-chat-message
         class="messages-container"
@@ -97,15 +97,15 @@ export default {
 
     scrollToBottom() {
       console.log("scrollToBottom");
-      let pageChat = this.$refs.pageChat.$el;
+      let groupChat = this.$refs.groupChat.$el;
       setTimeout(() => {
-        window.scrollTo(0, pageChat.scrollHeight);
+        window.scrollTo(0, groupChat.scrollHeight);
       }, 20);
     },
   },
 
   watch: {
-    messages: {
+    groupMessages: {
       handler(val) {
         this.scrollToBottom();
         console.log("My store value for messaggi:", val);

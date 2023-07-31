@@ -18,6 +18,7 @@ const state = {
   connectionsQueue: [],
 
   friendsList: [],
+  groupsList: [],
 
   unreadMessages: {},
 
@@ -84,6 +85,11 @@ const mutations = {
     console.log("friend list");
     console.log(payload);
   },
+  groupList(state, payload) {
+    state.groupsList = payload;
+
+    console.log(state.groupsList);
+  },
 
   setUnreadMessages(state, payload) {
     state.unreadMessages = payload;
@@ -95,8 +101,12 @@ const mutations = {
       state.unreadMessages[userId] = 1;
     }
   },
-  clearUnreadMessages(state, userId) {
-    state.unreadMessages[userId] = 0;
+  clearUnreadMessages(state, payload) {
+    // state.unreadMessages[userId] = 0;
+
+    state.friendsList.friends[payload.otherUserId].unreadMessage = 0;
+
+    // state.friendsList[payload.otherUserId][payload.userId].unreadMessages
   },
 
   MessageCounter(state, payload) {
@@ -105,6 +115,11 @@ const mutations = {
     let helper = payload.updateCounter.otherUserId;
 
     state.friendsList.friends[helper].unreadMessage =
+      payload.updateCounter.messageCounter;
+  },
+
+  GroupMessageCounter(state, payload) {
+    state.groupsList.groups[payload.updateCounter.groupId].unreadMessage =
       payload.updateCounter.messageCounter;
   },
 
@@ -442,6 +457,11 @@ const actions = {
   clearUnreadMessages({ commit }, otherUserId) {
     let userId = state.userDetails.userId;
 
+    let payload = {
+      userId: userId,
+
+      otherUserId: otherUserId,
+    };
     // let friendChecker = false;
     // friendChecker = state.friendsList.friends.hasOwnProperty(otherUserId);
 
@@ -454,7 +474,7 @@ const actions = {
         unreadMessage: 0,
       });
 
-      commit("clearUnreadMessages", userId);
+      commit("clearUnreadMessages", payload);
     }
   },
 
@@ -529,31 +549,55 @@ const actions = {
     let friends = [];
     let current = [];
 
+    // firebaseDb
+    //   .ref("Friends/" + payload.currentId)
+    //   .once("value")
+    //   .then((snapshot1) => {
+    //     // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
+    //     friends = snapshot1.val() || [];
+    //     current = snapshot1.val() || [];
+
+    //     console.log(friends);
+    //     friends.push(payload.friends);
+    //     current.push(payload.currentUser);
+
+    //     console.log(payload.currentUser);
+
+    //     console.log(friends);
+
     firebaseDb
-      .ref("Friends/" + payload.currentId)
-      .once("value")
-      .then((snapshot1) => {
-        // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
-        friends = snapshot1.val() || [];
-        current = snapshot1.val() || [];
-
-        console.log(friends);
-        friends.push(payload.friends);
-        current.push(payload.currentUser);
-
-        console.log(payload.currentUser);
-
-        console.log(friends);
-
-        firebaseDb
-          .ref("Friends/" + payload.currentId + "/" + payload.friends.id)
-          .set(friends[0]);
-        firebaseDb
-          .ref("Friends/" + payload.friends.id + "/" + payload.currentId)
-          .set(current[0]);
-      });
+      .ref("Friends/" + payload.currentId + "/" + payload.friends.id)
+      .set(payload.friends);
+    firebaseDb
+      .ref("Friends/" + payload.friends.id + "/" + payload.currentId)
+      .set(payload.currentUser);
+    // });
   },
+  makeGroups({}, payload) {
+    console.log(payload);
 
+    let groups = [];
+    // let current = [];
+
+    // firebaseDb
+    //   .ref("userGroups/" + payload.currentId)
+    //   .once("value")
+    //   .then((snapshot1) => {
+    //     // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
+    //     groups = snapshot1.val() || [];
+
+    //     console.log(groups);
+    //     groups.push(payload.groups);
+
+    //     console.log(payload.currentUser);
+
+    //     console.log(groups);
+
+    firebaseDb
+      .ref("userGroups/" + payload.currentId + "/" + payload.groups.id)
+      .set(payload.groups); // Now, we set the entire 'groups' array as the value in the database.
+    // });
+  },
   FriendsList({ commit }, payload) {
     let friends = [];
     console.log("payload", payload);
@@ -569,6 +613,24 @@ const actions = {
 
         commit("friendList", {
           friends,
+        });
+      });
+  },
+  GroupsList({ commit }, payload) {
+    let groups = [];
+    console.log("payload", payload);
+    firebaseDb
+      .ref("userGroups/" + payload)
+      .once("value")
+      .then((snapshot1) => {
+        // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
+
+        groups = snapshot1.val() || [];
+
+        console.log(groups);
+
+        commit("groupList", {
+          groups,
         });
       });
   },
@@ -616,6 +678,43 @@ const actions = {
     console.log(groupId);
 
     firebaseDb.ref("groupChats/" + groupId).push(message);
+
+    const currentRoute = window.location.pathname;
+    const groupPath = "/group/" + groupId;
+    const isgroupRoute = currentRoute.includes(groupPath);
+
+    let messageCounter;
+    let updateCounter = {};
+    let groupChecker = false;
+    groupChecker = state.groupsList.groups.hasOwnProperty(groupId);
+
+    console.log(groupChecker);
+
+    if (!isgroupRoute && groupChecker) {
+      firebaseDb
+        .ref("userGroups/" + state.userDetails.userId + "/" + groupId)
+        .once("value")
+        .then((snapshot1) => {
+          // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
+          messageCounter = snapshot1.val() || [];
+
+          console.log(messageCounter);
+          messageCounter.unreadMessage = messageCounter.unreadMessage + 1;
+
+          firebaseDb
+            .ref("userGroups/" + state.userDetails.userId + "/" + groupId)
+            .update({
+              unreadMessage: messageCounter.unreadMessage,
+            });
+
+          updateCounter.groupId = groupId;
+          updateCounter.messageCounter = messageCounter.unreadMessage;
+
+          commit("GroupMessageCounter", {
+            updateCounter,
+          });
+        });
+    }
     // Implement Firebase API call to send a group message and commit to state
   },
 
@@ -781,6 +880,12 @@ const getters = {
     let usersFriends = state.friendsList.friends;
     console.log(usersFriends);
     return usersFriends;
+  },
+
+  totalGroups: (state) => {
+    let totalGroups = state.groupsList.groups;
+
+    return totalGroups;
   },
 
   unreadMessages: (state) => {

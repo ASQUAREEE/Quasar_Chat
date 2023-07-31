@@ -120,6 +120,7 @@ export default {
 
   unmounted() {
     this.firebaseStopGettingMessages();
+    this.clearUnreadMessages(this.$route.params.otherUserId);
   },
 };
 </script>
