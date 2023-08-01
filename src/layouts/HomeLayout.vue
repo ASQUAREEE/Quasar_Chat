@@ -3,6 +3,11 @@
     <q-header elevated :class="$q.dark.isActive ? 'bg-secondary' : 'bg-black'">
       <q-toolbar>
         <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
+        <q-btn
+          @click="$router.push('/auth')"
+          class="absolute-right q-pr-sm"
+          label="login"
+        />
         <q-toolbar-title class="absolute-center">Gloomy World</q-toolbar-title>
       </q-toolbar>
     </q-header>
