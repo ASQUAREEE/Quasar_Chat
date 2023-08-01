@@ -1,9 +1,9 @@
 const routes = [
   {
-    path: "/",
+    path: "/user",
     component: () => import("layouts/MainLayout.vue"),
     children: [
-      { path: "", component: () => import("pages/UsersPage.vue") },
+      { path: "/user", component: () => import("pages/UsersPage.vue") },
       { path: "/auth", component: () => import("pages/AuthPage.vue") },
       {
         path: "/creategroup",
@@ -19,7 +19,11 @@ const routes = [
       },
     ],
   },
-
+  {
+    path: "/",
+    component: () => import("layouts/HomeLayout.vue"),
+    children: [{ path: "", component: () => import("pages/HomePage.vue") }],
+  },
   // Always leave this as last one,
   // but you can also remove it
   {

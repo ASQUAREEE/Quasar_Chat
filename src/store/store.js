@@ -361,7 +361,7 @@ const actions = {
 
         dispatch("firebaseGetUser", {});
 
-        this.$router.push("/");
+        this.$router.push("/user");
       } else {
         //user is logged out
 

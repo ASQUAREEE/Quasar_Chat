@@ -91,7 +91,7 @@
             !$route.fullPath.includes('/chat') &&
             !$route.fullPath.includes('/group')
           "
-          to="/home"
+          to="/"
           class="absolute-left q-pr-sm"
           no-caps
           dense
@@ -175,7 +175,7 @@ export default {
     title() {
       let currentPath = this.$route.fullPath;
 
-      if (currentPath === "/") {
+      if (currentPath === "/user") {
         return "ASQUARE CHAT";
       } else if (currentPath.includes("/chat")) {
         return this.otherUserDetails.name;
