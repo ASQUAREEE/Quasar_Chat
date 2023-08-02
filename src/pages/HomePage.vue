@@ -1,5 +1,5 @@
 <template>
-  <q-page ref="groupChat" class="page-chat flex column">
+  <q-page class="page-chat flex column">
     <!-- Page content -->
     <q-page-container class="home-page-container">
       <div class="background-image"></div>

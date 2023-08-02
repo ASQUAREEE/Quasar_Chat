@@ -546,57 +546,53 @@ const actions = {
   makeFriends({}, payload) {
     console.log(payload);
 
-    let friends = [];
-    let current = [];
-
-    // firebaseDb
-    //   .ref("Friends/" + payload.currentId)
-    //   .once("value")
-    //   .then((snapshot1) => {
-    //     // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
-    //     friends = snapshot1.val() || [];
-    //     current = snapshot1.val() || [];
-
-    //     console.log(friends);
-    //     friends.push(payload.friends);
-    //     current.push(payload.currentUser);
-
-    //     console.log(payload.currentUser);
-
-    //     console.log(friends);
-
-    firebaseDb
-      .ref("Friends/" + payload.currentId + "/" + payload.friends.id)
-      .set(payload.friends);
-    firebaseDb
-      .ref("Friends/" + payload.friends.id + "/" + payload.currentId)
-      .set(payload.currentUser);
+    if (state.userDetails && state.userDetails.userId && payload.friends.id) {
+      firebaseDb
+        .ref("Friends/" + payload.currentId + "/" + payload.friends.id)
+        .set(payload.friends);
+      firebaseDb
+        .ref("Friends/" + payload.friends.id + "/" + payload.currentId)
+        .set(payload.currentUser);
+    }
     // });
   },
+
+  removeFriends({ state }, payload) {
+    if (state.userDetails && state.userDetails.userId && payload.friends.id) {
+      let currentId = state.userDetails.userId;
+      // let friendId = this.$route.params.otherUserId;
+      let friendId = payload.friends.id;
+
+      console.log(friendId);
+      console.log(payload);
+
+      // Use the `update` method to remove the friend from the Friends list.
+      // This will set the value of the friend's entry to `null`, effectively removing it.
+      firebaseDb.ref("Friends/" + currentId).update({
+        [friendId]: null,
+      });
+
+      // Optionally, you can also remove the friend from the other user's Friends list:
+      // firebaseDb.ref("Friends/" + friendId).update({
+      //   [currentId]: null,
+      // });
+    }
+  },
   makeGroups({}, payload) {
-    console.log(payload);
+    if (state.userDetails && state.userDetails.userId && payload.groups.id) {
+      firebaseDb
+        .ref("userGroups/" + payload.currentId + "/" + payload.groups.id)
+        .set(payload.groups); // Now, we set the entire 'groups' array as the value in the database.
+      // });
+    }
+  },
 
-    let groups = [];
-    // let current = [];
-
-    // firebaseDb
-    //   .ref("userGroups/" + payload.currentId)
-    //   .once("value")
-    //   .then((snapshot1) => {
-    //     // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
-    //     groups = snapshot1.val() || [];
-
-    //     console.log(groups);
-    //     groups.push(payload.groups);
-
-    //     console.log(payload.currentUser);
-
-    //     console.log(groups);
-
-    firebaseDb
-      .ref("userGroups/" + payload.currentId + "/" + payload.groups.id)
-      .set(payload.groups); // Now, we set the entire 'groups' array as the value in the database.
-    // });
+  removeGroups({}, payload) {
+    if (state.userDetails && state.userDetails.userId && payload.groups.id) {
+      firebaseDb
+        .ref("userGroups/" + payload.currentId)
+        .update({ [payload.groups.id]: null });
+    }
   },
   FriendsList({ commit }, payload) {
     let friends = [];

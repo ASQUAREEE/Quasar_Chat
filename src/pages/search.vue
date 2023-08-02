@@ -47,5 +47,15 @@ export default {
   methods: {
     ...mapActions("store1", ["setSearch"]),
   },
+
+  created() {
+    // Clear the searchField when the component is mounted
+    this.searchField = "";
+  },
+
+  beforeUnmount() {
+    // Clear the searchField when the component is unmounted
+    this.searchField = "";
+  },
 };
 </script>

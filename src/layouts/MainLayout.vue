@@ -55,16 +55,19 @@
           dense
           icon="account_circle"
           flat
-          label="Add friend"
+          :label="
+            friendshipStatus == true ? 'You both are now friends' : 'Add friend'
+          "
         />
         <q-btn
           v-if="$route.fullPath.includes('/chat') && friendTracker"
+          @click="removeFriend"
           class="absolute-right q-pr-sm"
           no-caps
           dense
-          icon="account_circle"
+          icon="remove_circle_outline"
           flat
-          label="your friend"
+          :label="removeStatus == true ? 'Removed' : 'Remove friend'"
         />
         <q-btn
           v-if="$route.fullPath.includes('/group') && !groupTracker"
@@ -74,16 +77,17 @@
           dense
           icon="account_circle"
           flat
-          label="join the group"
+          :label="addGroupStatus == true ? 'joined' : 'join the group'"
         />
         <q-btn
           v-if="$route.fullPath.includes('/group') && groupTracker"
+          @click="removeGroup"
           class="absolute-right q-pr-sm"
           no-caps
           dense
-          icon="account_circle"
+          icon="remove_circle_outline"
           flat
-          label="You are amazing"
+          :label="removeStatus == true ? 'Left' : 'Leave the group'"
         />
 
         <q-btn
@@ -157,6 +161,9 @@ export default {
 
       friendTracker: false,
       groupTracker: false,
+      friendshipStatus: false,
+      removeStatus: false,
+      addGroupStatus: false,
     };
   },
 
@@ -201,7 +208,13 @@ export default {
   },
   methods: {
     ...mapGetters("store1", ["currentUser"]),
-    ...mapActions("store1", ["logoutUser", "makeFriends", "makeGroups"]),
+    ...mapActions("store1", [
+      "logoutUser",
+      "makeFriends",
+      "makeGroups",
+      "removeFriends",
+      "removeGroups",
+    ]),
 
     addFriends() {
       this.friendDetails.currentId = this.currentUser();
@@ -219,7 +232,29 @@ export default {
       console.log(this.userDetails);
 
       this.makeFriends(this.friendDetails);
+
+      this.friendshipStatus = true;
       console.log(this.friendDetails);
+    },
+    removeFriend() {
+      this.friendDetails.currentId = this.currentUser();
+
+      this.friendDetails.friends.id = this.$route.params.otherUserId;
+      this.friendDetails.friends.name = this.otherUserDetails.name;
+      this.friendDetails.friends.email = this.otherUserDetails.email;
+
+      this.friendDetails.currentUser.name = this.userDetails.name;
+      this.friendDetails.currentUser.email = this.userDetails.email;
+      this.friendDetails.currentUser.id = this.userDetails.userId;
+
+      // this.friendDetails.currentId.name = this.userDetails
+
+      // console.log(this.friendDetails);
+
+      this.removeFriends(this.friendDetails);
+
+      this.removeStatus = true;
+      // console.log(this.friendDetails);
     },
     addGroups() {
       this.groupsDetails.currentId = this.currentUser();
@@ -239,6 +274,29 @@ export default {
 
       this.makeGroups(this.groupsDetails);
       console.log(this.groupsDetails);
+
+      this.addGroupStatus = true;
+    },
+
+    removeGroup() {
+      this.groupsDetails.currentId = this.currentUser();
+
+      this.groupsDetails.groups.id = this.$route.params.groupId;
+      this.groupsDetails.groups.name =
+        this.groups[this.$route.params.groupId].name;
+      // this.friendDetails.friends.email = this.otherUserDetails.email;
+
+      this.groupsDetails.currentUser.name = this.userDetails.name;
+      this.groupsDetails.currentUser.email = this.userDetails.email;
+      this.groupsDetails.currentUser.id = this.userDetails.userId;
+
+      // this.friendDetails.currentId.name = this.userDetails
+
+      console.log(this.userDetails);
+
+      this.removeGroups(this.groupsDetails);
+      console.log(this.groupsDetails);
+      this.removeStatus = true;
     },
   },
 

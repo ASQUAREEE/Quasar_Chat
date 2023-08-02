@@ -15,8 +15,8 @@
   <q-separator />
 
   <q-tab-panels v-model="tab" animated>
-    <q-tab-panel name="individual">
-      <q-page :tab="tab" v-if="!tracker" class="flex q-pa-md">
+    <q-tab-panel class="page flex column" name="individual">
+      <q-page class="flex column q-pa-md" :tab="tab" v-if="!tracker">
         <q-list class="full-width" separator>
           <div class="row q-mb-lg">
             <search />
@@ -112,8 +112,8 @@
       </q-page>
     </q-tab-panel>
 
-    <q-tab-panel name="group">
-      <q-page :tab="tab">
+    <q-tab-panel class="page flex column" name="group">
+      <q-page class="flex column q-pa-md" :tab="tab">
         <groupPage />
         <link
           href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -200,10 +200,6 @@ export default {
     // },
   },
 
-  // mounted() {
-  //   this.friendConnection();
-  // },
-
   created() {
     // this.friendConnection();
     this.checkConnectionsInterval = setInterval(() => {
@@ -267,20 +263,173 @@ export default {
 </script>
 
 <style>
-.email {
-  color: grey;
+/* Overall page styling */
+html,
+body {
+  background: #313a45;
+  font-family: "Roboto", sans-serif;
+  color: #b0bec5;
+}
+
+.page {
+  background: #313a45;
+  color: #b0bec5;
+  background-image: linear-gradient(
+      90deg,
+      rgba(55, 71, 79, 0.4) 0%,
+      rgba(55, 71, 79, 0.8) 100%
+    ),
+    url("https://images.unsplash.com/photo-1690692791471-5c393267aa9f?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY5MDk3MDQ5Mg&ixlib=rb-4.0.3&q=80&w=1920");
+  /* url("https://source.unsplash.com/random/1920x1080"); */
+  background-blend-mode: overlay;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Tab styling */
+.q-tabs__content {
+  background-color: #3c4b57;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.q-tab.active {
+  color: #ffffff;
+  background-color: #2cb3f0;
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.q-tab-indicator {
+  background-color: #2cb3f0;
+  height: 3px;
+  border-radius: 10px;
+}
+
+/* Badge styling */
+.q-badge.light-green-5 {
+  background-color: #8bc34a;
+}
+
+/* List item styling */
+.q-list .q-item {
+  border-bottom: 1px solid #546e7a;
+}
+
+.q-list .q-item:last-child {
+  border-bottom: none;
+}
+
+.q-list .q-item:hover {
+  background-color: rgba(44, 179, 240, 0.2);
+  transition: background-color 0.3s;
+}
+
+.q-item-section.avatar {
+  position: relative;
+}
+
+.q-avatar {
+  border: 2px solid #2cb3f0;
+  background-color: #2cb3f0;
+  font-size: 24px;
+  border-radius: 50%;
+  position: relative;
+  z-index: 1;
+}
+
+.q-item-section.avatar .q-avatar:before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50%;
+  background-color: rgba(44, 179, 240, 0.4);
+  z-index: -1;
+}
+
+.q-list .q-item-section {
+  padding: 16px;
+  border-right: 1px solid #546e7a;
+}
+
+.q-list .q-item-section:last-child {
+  border-right: none;
+}
+
+.q-item-label {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.q-item-section.email {
   font-size: 12px;
+  color: #78909c;
 }
 
+.q-item-section.side {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+/* Make New Friends button */
 .makeNew {
-  background: rgb(137, 67, 195);
+  background: #137cb2;
   margin-top: 50px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s;
 }
 
-html {
-  height: 100%;
+.makeNew:hover {
+  background: #0d5c85;
 }
 
+/* Floating button */
+.floating-container {
+  position: fixed;
+  width: 100px;
+  height: 100px;
+  bottom: 0;
+  right: 0;
+  margin: 35px 25px;
+}
+
+.floating-container:hover {
+  height: 300px;
+}
+
+.floating-container:hover .floating-button {
+  box-shadow: 0 10px 25px rgba(44, 179, 240, 0.6);
+  transform: translateY(5px);
+  transition: all 0.3s;
+}
+
+.floating-container .floating-button {
+  position: absolute;
+  width: 65px;
+  height: 65px;
+  background: #2cb3f0;
+  bottom: 0;
+  border-radius: 50%;
+  left: 0;
+  right: 0;
+  margin: auto;
+  color: white;
+  line-height: 65px;
+  text-align: center;
+  font-size: 23px;
+  z-index: 100;
+  box-shadow: 0 10px 25px -5px rgba(44, 179, 240, 0.6);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+/* Loading Animation */
 .body-loading {
   background-image: radial-gradient(
     circle farthest-corner at center,
@@ -353,96 +502,5 @@ html {
   100% {
     transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg);
   }
-}
-
-@-webkit-keyframes come-in {
-  0% {
-    -webkit-transform: translatey(100px);
-    transform: translatey(100px);
-    opacity: 0;
-  }
-  30% {
-    -webkit-transform: translateX(-50px) scale(0.4);
-    transform: translateX(-50px) scale(0.4);
-  }
-  70% {
-    -webkit-transform: translateX(0px) scale(1.2);
-    transform: translateX(0px) scale(1.2);
-  }
-  100% {
-    -webkit-transform: translatey(0px) scale(1);
-    transform: translatey(0px) scale(1);
-    opacity: 1;
-  }
-}
-@keyframes come-in {
-  0% {
-    -webkit-transform: translatey(100px);
-    transform: translatey(100px);
-    opacity: 0;
-  }
-  30% {
-    -webkit-transform: translateX(-50px) scale(0.4);
-    transform: translateX(-50px) scale(0.4);
-  }
-  70% {
-    -webkit-transform: translateX(0px) scale(1.2);
-    transform: translateX(0px) scale(1.2);
-  }
-  100% {
-    -webkit-transform: translatey(0px) scale(1);
-    transform: translatey(0px) scale(1);
-    opacity: 1;
-  }
-}
-* {
-  margin: 0;
-  padding: 0;
-}
-
-html,
-body {
-  background: #eaedf2;
-  font-family: "Roboto", sans-serif;
-}
-
-.floating-container {
-  position: fixed;
-  width: 100px;
-  height: 100px;
-  bottom: 0;
-  right: 0;
-  margin: 35px 25px;
-}
-.floating-container:hover {
-  height: 300px;
-}
-.floating-container:hover .floating-button {
-  box-shadow: 0 10px 25px rgba(44, 179, 240, 0.6);
-  -webkit-transform: translatey(5px);
-  transform: translatey(5px);
-  -webkit-transition: all 0.3s;
-  transition: all 0.3s;
-}
-
-.floating-container .floating-button {
-  position: absolute;
-  width: 65px;
-  height: 65px;
-  background: #2cb3f0;
-  bottom: 0;
-  border-radius: 50%;
-  left: 0;
-  right: 0;
-  margin: auto;
-  color: white;
-  line-height: 65px;
-  text-align: center;
-  font-size: 23px;
-  z-index: 100;
-  box-shadow: 0 10px 25px -5px rgba(44, 179, 240, 0.6);
-  cursor: pointer;
-  -webkit-transition: all 0.3s;
-  transition: all 0.3s;
 }
 </style>

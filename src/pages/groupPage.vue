@@ -103,8 +103,6 @@ export default {
     ...mapActions("store1", ["fetchGroup", "GroupsList"]),
   },
 
-  created() {},
-
   watch: {
     userDetails: {
       handler(userDetail) {
