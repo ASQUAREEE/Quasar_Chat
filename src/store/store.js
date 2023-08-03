@@ -616,6 +616,11 @@ const actions = {
       members: [creatorId],
     };
 
+    const info = {
+      id: newGroup.groupId,
+      name: newGroup.name,
+      unreadMessage: 0,
+    };
     console.log(newGroup.groupId);
 
     if (
@@ -626,6 +631,10 @@ const actions = {
     ) {
       firebaseDb.ref("Groups/" + newGroup.groupId).set(newGroup);
       commit("addGroup", newGroup);
+
+      firebaseDb
+        .ref("userGroups/" + creatorId + "/" + newGroup.groupId)
+        .set(info);
     }
 
     return newGroup;
