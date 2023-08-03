@@ -179,25 +179,24 @@ export default {
       return Object.keys(this.users).includes(id) && this.users[id].online;
     },
 
-    makeConnection() {
+    async makeConnection() {
       let currentUser = this.currentUser();
       console.log("Current User: " + currentUser);
-      this.makeConnections(currentUser);
-      // console.log(this.idConnections);
 
-      this.tracker = true;
-      // this.transferConnection();
+      try {
+        // Call the makeConnections action and wait for it to complete.
+        await this.makeConnections(currentUser);
+        console.log("Connections made successfully!");
+        this.tracker = true;
+      } catch (error) {
+        console.error("Error making connections:", error);
+        // Handle the error if the connection process fails.
+      }
     },
 
     Listoffriends() {
       console.log(this.friendsList.friends);
     },
-
-    // friendConnection() {
-    //   let currentUser = this.currentUser();
-    //   console.log(currentUser);
-    //   this.FriendsList(currentUser);
-    // },
   },
 
   created() {
@@ -207,10 +206,6 @@ export default {
         this.letsConnectQueue();
       }
     }, 100); // Run the checkConnections method every 1 second (adjust the interval as needed)
-
-    // this.$store.dispatch("clearUnreadMessages", this.$route.params.userId);
-
-    // this.clearUnreadMessages(this.$route.params.userId);
   },
 
   beforeUnmount() {
@@ -239,22 +234,6 @@ export default {
     connectionsQueue: {
       handler(newQueue) {
         console.log("triggered watcher");
-
-        // this.letsConnectQueue();
-
-        // if (newQueue.length >0) {
-        // const currentUser = this.currentUser();
-        // const firstUserInQueue = newQueue[0];
-        // const secondUserInQueue = newQueue[1];
-        // if (currentUser === firstUserInQueue) {
-        //   // If the current user matches the first user in the queue, navigate to the chat route with the other user
-        //   this.$router.push(`/chat/${secondUserInQueue}`);
-        // }
-        // if (currentUser === secondUserInQueue) {
-        //   // If the current user matches the first user in the queue, navigate to the chat route with the other user
-        //   this.$router.push(`/chat/${firstUserInQueue}`);
-        // }
-        // }
       },
       immediate: true, // Trigger the handler immediately on component mount
     },

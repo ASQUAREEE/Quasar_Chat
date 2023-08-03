@@ -4,26 +4,6 @@
       <div class="row q-mb-lg">
         <search />
       </div>
-      <!-- <div v-if="search && search.length >= 3">
-        <q-item
-          v-for="(user, key) in users"
-          :key="key"
-          :to="'/chat/' + key"
-          clickable
-          v-ripple
-        >
-          <q-item-section avatar>
-            <q-avatar color="primary" text-color="white">
-              {{ user.name.charAt(0) }}
-            </q-avatar>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>{{ user.name }}</q-item-label>
-            <q-item-label class="email">{{ user.email }}</q-item-label>
-          </q-item-section>
-
-        </q-item>
-      </div> -->
       <p v-if="search && !Object.keys(groupsN).length">No search results</p>
       <div v-if="search && search.length >= 2">
         <q-item

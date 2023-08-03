@@ -75,11 +75,6 @@ const mutations = {
     console.log("enqueueConnection", state.connectionsQueue);
   },
 
-  dequeueConnection(state) {
-    state.connectionsQueue.shift();
-    console.log("dequee connection");
-  },
-
   friendList(state, payload) {
     state.friendsList = payload;
     console.log("friend list");
@@ -91,16 +86,6 @@ const mutations = {
     console.log(state.groupsList);
   },
 
-  setUnreadMessages(state, payload) {
-    state.unreadMessages = payload;
-  },
-  incrementUnreadMessages(state, userId) {
-    if (state.unreadMessages[userId]) {
-      state.unreadMessages[userId]++;
-    } else {
-      state.unreadMessages[userId] = 1;
-    }
-  },
   clearUnreadMessages(state, payload) {
     // state.unreadMessages[userId] = 0;
 
@@ -182,11 +167,6 @@ const actions = {
         // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
         connectionsArray = snapshot.val() || [];
 
-        // if (connectionsArray.length > 3) {
-        //   const newConnectionsArray = connectionsArray.slice(2);
-        //   firebaseDb.ref("makeConnection/").set(newConnectionsArray);
-        // }
-
         let isPayloadAlreadyExists = false;
         for (let i = 0; i < connectionsArray.length; i++) {
           if (connectionsArray[i] === payload) {
@@ -214,10 +194,14 @@ const actions = {
             firebaseDb.ref("connectionQueue/").set(connectionStrategy);
             commit("enqueueConnection", connectionStrategy);
           }
-          // dispatch("algoConnection", {
-          //   connectionsArray: connectionsArray,
-          // });
-          // Update the 'makeConnection' node with the new array.
+
+          if (connectionsArray.length >= 2) {
+            // firebaseDb.ref("makeConnection/").remove();
+            connectionsArray.splice(0, 2);
+
+            console.log("removed", connectionsArray);
+          }
+
           return firebaseDb.ref("makeConnection/").set(connectionsArray);
         } else {
           console.log(
@@ -446,11 +430,6 @@ const actions = {
         messageId,
         messageDetails,
       });
-
-      // Increment unread messages for the recipient user
-      // if (state.userDetails.userId === payload.otherUserId) {
-      //   commit("incrementUnreadMessages", otherUserId);
-      // }
     });
   },
 
@@ -571,11 +550,6 @@ const actions = {
       firebaseDb.ref("Friends/" + currentId).update({
         [friendId]: null,
       });
-
-      // Optionally, you can also remove the friend from the other user's Friends list:
-      // firebaseDb.ref("Friends/" + friendId).update({
-      //   [currentId]: null,
-      // });
     }
   },
   makeGroups({}, payload) {
@@ -728,25 +702,6 @@ const actions = {
       });
     });
   },
-  // fetchGroups({ commit }) {
-  //   firebaseDb
-  //     .ref("groups/" + payload.groupId)
-  //     .once("value")
-  //     .then((snapshot1) => {
-  //       // If the 'makeConnection' node doesn't exist yet, initialize it as an empty array.
-  //       groups = snapshot1.val() || [];
-
-  //       console.log(groups);
-  //     });
-  //   // Implement Firebase API call to fetch groups and commit to state
-  //   // For simplicity, we assume you have an array of groups
-  //   const groups = [
-  //     { groupId: "group1", name: "Group 1" },
-  //     { groupId: "group2", name: "Group 2" },
-  //     // Add more groups as needed
-  //   ];
-  //   commit("setGroups", groups);
-  // },
 
   fetchGroupMessages({ commit }, groupId) {
     // Implement Firebase API call to fetch group messages and commit to state
@@ -772,23 +727,6 @@ const actions = {
 };
 
 const getters = {
-  //make data available in vue comp
-
-  // users: (state) => {
-  //   // console.log("hhaha");
-
-  //   let usersFiltered = {};
-  //   Object.keys(state.users).forEach((key) => {
-  //     if (key !== state.userDetails.userId) {
-  //       usersFiltered[key] = state.users[key];
-  //     }
-  //   });
-
-  //   // console.log(state.users);
-
-  //   return usersFiltered;
-  // },
-
   taskFiltered: (state) => {
     let taskFiltered = {};
 
