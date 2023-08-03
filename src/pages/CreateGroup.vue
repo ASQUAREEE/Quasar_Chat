@@ -29,6 +29,7 @@ export default {
         }).then((newGroup) => {
           // Redirect to the newly created group chat
           // this.$router.push(`/group-chat/${newGroup.groupId}`);
+          this.$router.push("/user");
           console.log("newGroup)");
         });
       }
