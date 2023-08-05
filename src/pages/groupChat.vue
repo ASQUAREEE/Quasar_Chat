@@ -126,7 +126,7 @@ export default {
   methods: {
     ...mapActions("store1", [
       "groupGetMessages",
-      // "firebaseStopGettingMessages",
+      "groupStopGettingGroupMessage",
       "groupSendMessage",
       // "clearUnreadMessages",
     ]),
@@ -190,6 +190,7 @@ export default {
 
   unmounted() {
     // this.firebaseStopGettingMessages();
+    this.groupStopGettingGroupMessage();
   },
 };
 </script>

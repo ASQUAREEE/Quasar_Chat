@@ -126,6 +126,9 @@ const mutations = {
 
     state.groupMessages[payload.messageId] = payload.messageDetails;
   },
+  clearGroupMessages(state) {
+    state.groupMessages = {};
+  },
 };
 
 const actions = {
@@ -744,6 +747,13 @@ const actions = {
         });
     }
     // Implement Firebase API call to send a group message and commit to state
+  },
+  groupStopGettingGroupMessage({ commit }) {
+    if (messagesRef) {
+      messagesRef.off("child_added");
+
+      commit("clearGroupMessages");
+    }
   },
 
   groupGetMessages({ commit }, groupId) {
