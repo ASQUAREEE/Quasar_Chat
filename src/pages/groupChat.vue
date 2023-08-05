@@ -1,21 +1,70 @@
 <template>
   <q-page ref="groupChat" class="page-chat flex column">
     <div class="q-pa-md column col justify-end">
-      <q-chat-message
-        class="messages-container"
-        v-for="(message, key) in groupMessages"
-        :key="key"
-        :name="
-          message.from.userId == userDetails.userId
-            ? userDetails.name
-            : message.from.name
-        "
-        :text="[message.text]"
-        :sent="message.from.userId == userDetails.userId ? true : false"
-        :bg-color="
-          message.from.userId == userDetails.userId ? 'light-green' : 'white'
-        "
-      />
+      <div v-for="(message, key) in groupMessages" :key="key">
+        <div v-if="message.photoUrl != null && message.text != ''">
+          <div :class="message.from == 'me' ? 'me' : 'them'">
+            <template :class="message.from == 'me' ? 'me' : 'them'">
+              <q-img
+                :src="message.photoUrl"
+                spinner-color="white"
+                class="image-message"
+              />
+              <a :href="message.photoUrl" download>Download now</a>
+            </template>
+          </div>
+
+          <q-chat-message
+            class="messages-container"
+            :key="key"
+            :name="
+              message.from.userId == userDetails.userId
+                ? userDetails.name
+                : message.from.name
+            "
+            :text="[message.text]"
+            :sent="message.from.userId == userDetails.userId ? true : false"
+            :bg-color="
+              message.from.userId == userDetails.userId
+                ? 'light-green'
+                : 'white'
+            "
+          >
+          </q-chat-message>
+        </div>
+
+        <div v-else-if="message.photoUrl != null">
+          <q-img
+            :src="message.photoUrl"
+            spinner-color="white"
+            class="image-message"
+          />
+          <a :href="message.photoUrl" download>Download now</a>
+        </div>
+
+        <div v-else>
+          <q-chat-message
+            class="messages-container"
+            :key="key"
+            :name="
+              message.from.userId == userDetails.userId
+                ? userDetails.name
+                : message.from.name
+            "
+            :text="[message.text]"
+            :sent="message.from.userId == userDetails.userId ? true : false"
+            :bg-color="
+              message.from.userId == userDetails.userId
+                ? 'light-green'
+                : 'white'
+            "
+          >
+            <template v-slot:stamp>
+              {{ formatTimestamp(message.timestamp) }}
+            </template>
+          </q-chat-message>
+        </div>
+      </div>
     </div>
     <q-footer elevated>
       <q-toolbar>
@@ -42,6 +91,7 @@
             </template>
           </q-input>
         </q-form>
+        <input type="file" ref="fileInput" @change="onImageSelected" />
       </q-toolbar>
     </q-footer>
   </q-page>
@@ -50,6 +100,7 @@
 <script>
 import { mapState, mapActions, mapGetters } from "vuex";
 import mixinOtherDetails from "src/mixins/mixin-other-user-details.js";
+import { formatDistanceToNow } from "date-fns";
 
 export default {
   mixins: [mixinOtherDetails],
@@ -57,6 +108,7 @@ export default {
   data() {
     return {
       newMessage: "",
+      imageFile: null,
       // showMessages: false,
     };
   },
@@ -64,6 +116,11 @@ export default {
   computed: {
     ...mapState("store1", ["userDetails", "groupMessages"]),
     ...mapGetters("store1", ["currentUser"]),
+    formatTimestamp() {
+      return (timestamp) => {
+        return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
+      };
+    },
   },
 
   methods: {
@@ -76,16 +133,21 @@ export default {
 
     sendMessage() {
       let currentUser = this.userDetails;
+      const timestamp = new Date().toISOString();
       this.groupSendMessage({
         message: {
           text: this.newMessage,
           from: currentUser,
+          photo: this.imageFile,
+          timestamp: timestamp,
         },
         groupId: this.$route.params.groupId,
       });
       // Clear the input after sending the message
 
       this.clearMessage();
+      this.imageFile = null;
+      this.$refs.fileInput.value = "";
       this.$refs.newMessage.focus();
       // this.scrollToBottom();
     },
@@ -101,6 +163,11 @@ export default {
       setTimeout(() => {
         window.scrollTo(0, groupChat.scrollHeight);
       }, 20);
+    },
+    onImageSelected(event) {
+      this.imageFile = event.target.files[0];
+
+      console.log(this.imageFile);
     },
   },
 
@@ -157,6 +224,11 @@ export default {
   top: 40px;
   z-index: 2;
   opacity: 0.8;
+}
+
+.image-message {
+  max-width: 200px; /* Set the maximum width for the image */
+  max-height: 200px; /* Set the maximum height for the image */
 }
 
 /* q-messages {

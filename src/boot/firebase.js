@@ -2,6 +2,7 @@ import firebase from "firebase/compat/app";
 import { initializeApp } from "firebase/app";
 import "firebase/compat/auth";
 import "firebase/compat/database";
+import "firebase/compat/storage";
 
 // Add the Firebase products that you want to use
 import "firebase/auth";
@@ -21,5 +22,6 @@ const firebaseConfig = {
 let firebaseApp = firebase.initializeApp(firebaseConfig);
 let firebaseAuth = firebaseApp.auth();
 let firebaseDb = firebaseApp.database();
+const firebaseStorage = firebaseApp.storage(); // Make sure you have this line for storage
 
-export { firebaseAuth, firebaseDb };
+export { firebaseAuth, firebaseDb, firebaseStorage };

@@ -1,5 +1,6 @@
 // import { reactive } from "vue";
 import { firebaseAuth, firebaseDb } from "src/boot/firebase";
+import { firebaseStorage } from "src/boot/firebase";
 
 let messagesRef;
 
@@ -53,6 +54,8 @@ const mutations = {
 
   addMessage(state, payload) {
     state.messages[payload.messageId] = payload.messageDetails;
+
+    console.log(payload.messageDetails);
   },
 
   clearMessages(state) {
@@ -425,10 +428,14 @@ const actions = {
     messagesRef.on("child_added", (snapshot) => {
       let messageDetails = snapshot.val();
       let messageId = snapshot.key;
+      console.log(messageDetails);
 
       commit("addMessage", {
         messageId,
-        messageDetails,
+        messageDetails: {
+          ...messageDetails,
+          timestamp: messageDetails.timestamp || new Date().toISOString(), // Set timestamp to current date if not present
+        },
       });
     });
   },
@@ -467,16 +474,46 @@ const actions = {
     }
   },
 
-  firebaseSendMessage({ commit }, payload) {
+  async firebaseSendMessage({ commit }, payload) {
+    console.log(payload.message);
     // console.log("payload: ", payload);
+    // firebaseDb
+    //   .ref("chats/" + state.userDetails.userId + "/" + payload.otherUserId)
+    //   .push(payload.message);
+
+    // payload.message.from = "them";
+    // firebaseDb
+    //   .ref("chats/" + payload.otherUserId + "/" + state.userDetails.userId)
+    //   .push(payload.message);
+
+    let message = {
+      text: payload.message.text,
+      from: "me",
+      timestamp: payload.message.timestamp,
+    };
+
+    // If the user selected an image, upload it to Firebase Storage
+    if (payload.message.photo) {
+      const imageName = payload.message.photo.name;
+      const storageRef = firebaseStorage.ref(`images/${imageName}`); // Use firebaseStorage here
+      const snapshot = await storageRef.put(payload.message.photo);
+      const imageUrl = await snapshot.ref.getDownloadURL();
+      message.photoUrl = imageUrl;
+
+      console.log(message);
+    }
+
+    // Now send the message along with the image URL
     firebaseDb
       .ref("chats/" + state.userDetails.userId + "/" + payload.otherUserId)
-      .push(payload.message);
+      .push(message);
 
-    payload.message.from = "them";
+    message.from = "them";
     firebaseDb
       .ref("chats/" + payload.otherUserId + "/" + state.userDetails.userId)
-      .push(payload.message);
+      .push(message);
+
+    // Rest of the code remains the same
 
     let userId = state.userDetails.userId;
     let otherUserId = payload.otherUserId;
@@ -524,6 +561,8 @@ const actions = {
 
   makeFriends({}, payload) {
     console.log(payload);
+
+    payload.currentUser.unreadMessage = 0;
 
     if (state.userDetails && state.userDetails.userId && payload.friends.id) {
       firebaseDb
@@ -652,9 +691,19 @@ const actions = {
     return null; // Group not found
   },
 
-  groupSendMessage({ commit }, { message, groupId }) {
+  async groupSendMessage({ commit }, { message, groupId }) {
     console.log(message);
     console.log(groupId);
+
+    if (message.photo) {
+      const imageName = message.photo.name;
+      const storageRef = firebaseStorage.ref(`images/${imageName}`); // Use firebaseStorage here
+      const snapshot = await storageRef.put(message.photo);
+      const imageUrl = await snapshot.ref.getDownloadURL();
+      message.photoUrl = imageUrl;
+
+      console.log(message);
+    }
 
     firebaseDb.ref("groupChats/" + groupId).push(message);
 
@@ -706,8 +755,11 @@ const actions = {
       console.log(messageDetails);
 
       commit("addGroupMessage", {
-        messageDetails,
         messageId,
+        messageDetails: {
+          ...messageDetails,
+          timestamp: messageDetails.timestamp || new Date().toISOString(), // Set timestamp to current date if not present
+        },
       });
     });
   },
