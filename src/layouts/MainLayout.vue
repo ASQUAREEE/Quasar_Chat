@@ -36,7 +36,7 @@
             !$route.fullPath.includes('/chat') &&
             !$route.fullPath.includes('/group')
           "
-          @click="logoutUser"
+          @click="showLogoutDialog"
           class="absolute-right q-pr-sm"
           no-caps
           dense
@@ -46,6 +46,23 @@
           Logout<br />
           {{ userDetails.name }}
         </q-btn>
+
+        <q-dialog v-model="logoutDialogVisible">
+          <q-card>
+            <q-card-section>
+              <q-card-title class="text-h6"> Confirm Logout </q-card-title>
+              <q-card-main> Are you sure you want to log out? </q-card-main>
+              <q-card-actions align="right">
+                <q-btn
+                  label="Cancel"
+                  color="primary"
+                  @click="closeLogoutDialog"
+                />
+                <q-btn label="Logout" color="negative" @click="performLogout" />
+              </q-card-actions>
+            </q-card-section>
+          </q-card>
+        </q-dialog>
 
         <q-btn
           v-if="$route.fullPath.includes('/chat') && !friendTracker"
@@ -113,10 +130,9 @@
 </template>
 
 <script>
-import { defineComponent, ref } from "vue";
-import EssentialLink from "components/EssentialLink.vue";
-
 import { mapState, mapActions, mapGetters } from "vuex";
+
+import { Notify } from "quasar";
 
 import mixinOtherDetails from "src/mixins/mixin-other-user-details.js";
 
@@ -164,6 +180,7 @@ export default {
       friendshipStatus: false,
       removeStatus: false,
       addGroupStatus: false,
+      logoutDialogVisible: false,
     };
   },
 
@@ -190,10 +207,7 @@ export default {
         return "Login";
       } else if (currentPath.includes("/group")) {
         return this.myGroupDetails;
-        // return this.myGroupDetails;
-        // return this.groups[this.$route.params.groupId].name;
       }
-
       return "Default Title"; // Add a default return value
     },
 
@@ -297,6 +311,23 @@ export default {
       this.removeGroups(this.groupsDetails);
       console.log(this.groupsDetails);
       this.removeStatus = true;
+    },
+
+    showLogoutDialog() {
+      this.logoutDialogVisible = true;
+    },
+
+    closeLogoutDialog() {
+      this.logoutDialogVisible = false;
+    },
+
+    performLogout() {
+      this.logoutDialogVisible = false;
+      this.logoutUser();
+      Notify.create({
+        color: "positive",
+        message: "Logged out successfully!",
+      });
     },
   },
 

@@ -1,6 +1,11 @@
 <template>
-  <q-page class="flex q-pa-md">
-    <q-card class="full-width">
+  <!-- <q-page class="flex q-pa-md">
+    <q-card class="full-width"> -->
+  <q-page
+    class="flex q-pa-md row justify-center items-center"
+    style="background: linear-gradient(#8274c5, #5a4a9f)"
+  >
+    <q-card square class="shadow-24" style="width: 90%; max-width: 400px">
       <q-tabs
         v-model="tab"
         dense

@@ -22,7 +22,15 @@ const routes = [
   {
     path: "/",
     component: () => import("layouts/HomeLayout.vue"),
-    children: [{ path: "", component: () => import("pages/HomePage.vue") }],
+    children: [
+      { path: "", component: () => import("pages/HomePage.vue") },
+      { path: "/privacy", component: () => import("pages/PrivacyPage.vue") },
+      { path: "/help", component: () => import("pages/HelpPage.vue") },
+      {
+        path: "/feature",
+        component: () => import("src/pages/FeaturesPage.vue"),
+      },
+    ],
   },
   // Always leave this as last one,
   // but you can also remove it

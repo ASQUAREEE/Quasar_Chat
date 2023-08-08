@@ -23,7 +23,7 @@
       <q-scroll-area class="fit">
         <q-list>
           <template v-for="(menuItem, index) in menuList" :key="index">
-            <q-item clickable :active="menuItem.label === 'Outbox'" v-ripple>
+            <q-item clickable v-ripple :to="menuItem.to">
               <q-item-section avatar>
                 <q-icon :name="menuItem.icon" />
               </q-item-section>
@@ -31,6 +31,7 @@
                 {{ menuItem.label }}
               </q-item-section>
             </q-item>
+
             <q-separator :key="'sep' + index" v-if="menuItem.separator" />
           </template>
         </q-list>
@@ -53,40 +54,28 @@
 <script>
 const menuList = [
   {
-    icon: "inbox",
-    label: "Inbox",
+    icon: "home",
+    label: "Home",
     separator: true,
+    to: "/",
   },
   {
-    icon: "send",
-    label: "Outbox",
+    icon: "security",
+    label: "Privacy and Security",
     separator: false,
-  },
-  {
-    icon: "delete",
-    label: "Trash",
-    separator: false,
-  },
-  {
-    icon: "error",
-    label: "Spam",
-    separator: true,
-  },
-  {
-    icon: "settings",
-    label: "Settings",
-    separator: false,
-  },
-  {
-    icon: "feedback",
-    label: "Send Feedback",
-    separator: false,
+    to: "/privacy",
   },
   {
     icon: "help",
-    iconColor: "primary",
     label: "Help",
     separator: false,
+    to: "/help",
+  },
+  {
+    icon: "email",
+    label: "Features",
+    separator: false,
+    to: "/feature",
   },
 ];
 

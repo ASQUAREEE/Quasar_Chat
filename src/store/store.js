@@ -157,6 +157,7 @@ const actions = {
 
       .catch((error) => {
         console.log("error:", error.message);
+        alert("something went wrong");
       });
   },
 
@@ -315,6 +316,7 @@ const actions = {
 
       .catch((error) => {
         console.log("error:", error.message);
+        alert("something went wrong");
       });
   },
 
@@ -364,7 +366,9 @@ const actions = {
 
         commit("setUserDetails", {});
 
-        this.$router.push("/auth");
+        if (this.$router.currentRoute.value.fullPath !== "/") {
+          this.$router.push("/auth");
+        }
       }
     });
   },

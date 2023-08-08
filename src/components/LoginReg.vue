@@ -27,6 +27,7 @@
       type="password"
       label="Password"
       required
+      :rules="[passwordMinLengthValidation]"
     />
 
     <div class="row">
@@ -49,17 +50,18 @@ export default {
         email: "",
         password: "",
       },
+      passwordRequiredError: false,
     };
   },
 
   methods: {
     ...mapActions("store1", ["registerUser", "loginUser"]),
 
-    submitForm() {
+    async submitForm() {
       if (this.tab == "login") {
         // console.log("Login the user");
         if (this.formData.name != null && this.formData.name != undefined) {
-          this.loginUser(this.formData);
+          await this.loginUser(this.formData);
         }
       } else {
         // console.log("Register the user");
@@ -67,6 +69,13 @@ export default {
           this.registerUser(this.formData);
         }
       }
+    },
+  },
+
+  computed: {
+    passwordMinLengthValidation() {
+      return (val) =>
+        (val && val.length >= 6) || "Password must be at least 6 characters";
     },
   },
 };
