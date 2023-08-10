@@ -41,6 +41,14 @@
         security on Gloomy Chat, feel free to contact our support team at
         <a href="mailto:ashher868@gmail.com">support@gloomychat.com</a>.
       </p>
+
+      <h2 class="text-h5">Account Deletion</h2>
+      <p>
+        We understand that your circumstances may change. If you wish to delete
+        your Gloomy Chat account and associated data, you can do so by clicking
+        the following link: <br />
+        <q-item to="/delete">Delete My Account</q-item>
+      </p>
     </q-page-container>
   </q-page>
 </template>

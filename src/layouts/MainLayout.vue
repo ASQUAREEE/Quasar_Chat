@@ -200,13 +200,15 @@ export default {
       let currentPath = this.$route.fullPath;
 
       if (currentPath === "/user") {
-        return "ASQUARE CHAT";
+        return "GLOOMY CHAT";
       } else if (currentPath.includes("/chat")) {
         return this.otherUserDetails.name;
       } else if (currentPath === "/auth") {
         return "Login";
       } else if (currentPath.includes("/group")) {
         return this.myGroupDetails;
+      } else if (currentPath.includes("/creategroup")) {
+        return "Create Group";
       }
       return "Default Title"; // Add a default return value
     },
@@ -329,6 +331,16 @@ export default {
         message: "Logged out successfully!",
       });
     },
+  },
+
+  deactivated() {
+    this.friendTracker = false;
+    this.groupTracker = false;
+  },
+
+  unmounted() {
+    this.friendTracker = false;
+    this.groupTracker = false;
   },
 
   watch: {

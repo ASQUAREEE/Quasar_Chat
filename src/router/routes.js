@@ -30,6 +30,10 @@ const routes = [
         path: "/feature",
         component: () => import("src/pages/FeaturesPage.vue"),
       },
+      {
+        path: "/delete",
+        component: () => import("src/pages/deleteAccount.vue"),
+      },
     ],
   },
   // Always leave this as last one,

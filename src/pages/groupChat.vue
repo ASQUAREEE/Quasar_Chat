@@ -3,17 +3,6 @@
     <div class="q-pa-md column col justify-end">
       <div v-for="(message, key) in groupMessages" :key="key">
         <div v-if="message.photoUrl != null && message.text != ''">
-          <div :class="message.from == 'me' ? 'me' : 'them'">
-            <template :class="message.from == 'me' ? 'me' : 'them'">
-              <q-img
-                :src="message.photoUrl"
-                spinner-color="white"
-                class="image-message"
-              />
-              <a :href="message.photoUrl" download>Download now</a>
-            </template>
-          </div>
-
           <q-chat-message
             class="messages-container"
             :key="key"
@@ -30,16 +19,40 @@
                 : 'white'
             "
           >
+            <q-img
+              :src="message.photoUrl"
+              spinner-color="white"
+              class="image-message"
+            />
+            <a :href="message.photoUrl" download>Download now</a>
           </q-chat-message>
         </div>
 
         <div v-else-if="message.photoUrl != null">
-          <q-img
-            :src="message.photoUrl"
-            spinner-color="white"
-            class="image-message"
-          />
-          <a :href="message.photoUrl" download>Download now</a>
+          <q-chat-message
+            class="message-container"
+            :key="key"
+            :name="
+              message.from.userId == userDetails.userId
+                ? userDetails.name
+                : message.from.name
+            "
+            :sent="message.from.userId == userDetails.userId ? true : false"
+            :bg-color="
+              message.from.userId == userDetails.userId
+                ? 'light-green'
+                : 'white'
+            "
+          >
+            <q-img
+              :src="message.photoUrl"
+              spinner-color="white"
+              class="image-message"
+            />
+            <a :href="message.photoUrl" download
+              >Download now</a
+            ></q-chat-message
+          >
         </div>
 
         <div v-else>

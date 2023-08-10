@@ -9,17 +9,6 @@
     <div class="q-pa-md column col justify-end">
       <div v-for="(message, key) in messages" :key="key">
         <div v-if="message.photoUrl != null && message.text != ''">
-          <div :class="message.from == 'me' ? 'me' : 'them'">
-            <template :class="message.from == 'me' ? 'me' : 'them'">
-              <q-img
-                :src="message.photoUrl"
-                spinner-color="white"
-                class="image-message"
-              />
-              <a :href="message.photoUrl" download>Download now</a>
-            </template>
-          </div>
-
           <q-chat-message
             class="messages-container"
             :key="key"
@@ -30,18 +19,35 @@
             :sent="message.from == 'me' ? true : false"
             :bg-color="message.from == 'me' ? 'light-green' : 'white'"
           >
+            <q-img
+              :src="message.photoUrl"
+              spinner-color="white"
+              class="image-message"
+            />
+            <a :href="message.photoUrl" download>Download now</a>
             <template v-slot:stamp>
               {{ formatTimestamp(message.timestamp) }}
             </template>
           </q-chat-message>
         </div>
         <div v-else-if="message.photoUrl != null">
-          <q-img
-            :src="message.photoUrl"
-            spinner-color="white"
-            class="image-message"
-          />
-          <a :href="message.photoUrl" download>Download now</a>
+          <q-chat-message
+            class="messages-container"
+            :key="key"
+            :name="
+              message.from == 'me' ? userDetails.name : otherUserDetails.name
+            "
+            :sent="message.from == 'me' ? true : false"
+            :bg-color="message.from == 'me' ? 'light-green' : 'white'"
+            ><q-img
+              :src="message.photoUrl"
+              spinner-color="white"
+              class="image-message"
+            />
+            <a :href="message.photoUrl" download
+              >Download now</a
+            ></q-chat-message
+          >
         </div>
 
         <div v-else>

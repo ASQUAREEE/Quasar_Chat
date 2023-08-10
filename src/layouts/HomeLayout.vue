@@ -72,7 +72,7 @@ const menuList = [
     to: "/help",
   },
   {
-    icon: "email",
+    icon: "star",
     label: "Features",
     separator: false,
     to: "/feature",
