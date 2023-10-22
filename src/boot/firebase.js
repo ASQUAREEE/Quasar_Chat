@@ -10,12 +10,12 @@ import "firebase/database";
 // TODO: Replace the following with your app's Firebase project configuration
 const firebaseConfig = {
   // Your Firebase project config
-  apiKey: "AIzaSyAsHRqOFgU-A7SjTK39oNvIcR-Urod8z44",
+  apiKey: "your key",
   authDomain: "asquare-chat-74a44.firebaseapp.com",
   projectId: "asquare-chat-74a44",
   storageBucket: "asquare-chat-74a44.appspot.com",
   messagingSenderId: "435416239919",
-  appId: "1:435416239919:web:8eda90a49b1b40f1da1bda",
+  appId: "your id",
   measurementId: "G-6QZD8241RF",
 };
 
