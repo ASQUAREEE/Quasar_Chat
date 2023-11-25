@@ -1,4 +1,4 @@
-gloomychat.com
+[Live Link](gloomychat.com)
 
 # Gloomy Chat (asquare)
 
